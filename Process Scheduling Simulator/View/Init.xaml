@@ -4,9 +4,98 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Process_Scheduling_Simulator.View"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:fa="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
-        Title="Init" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        AllowDrop="True"
+        AllowsTransparency="True"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Title="Init" Height="720" Width="1280" Background="Transparent"
+        Loaded="LoadedEventHandler">
+    <Border Name="BorderMain" Background="#fdfdfd" CornerRadius="15">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14">
+                    Process Scheduling Simulator : Init
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15,0">
+                    <Button Width="20" Height="20" BorderBrush="Transparent" hc:BorderElement.Circular="True" hc:BorderElement.CornerRadius="10" Background="#fc3a3a" Click="AppCloseClickedEventHandler"/>
+                </StackPanel>
+                <Border MouseDown="Topbar_MouseDown" Width="1000" Background="Transparent"/>
+            </Grid>
+            
+            <!-- Content -->
+            <Grid Grid.Row="1">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button Click="MainApplicationInstanceClickedEventHandler" Width="400" Height="80" hc:BorderElement.CornerRadius="40" Margin="15">
+                        <Button.Effect>
+                            <DropShadowEffect Color="#FFC50075" Direction="0" ShadowDepth="0" Opacity="0.5" BlurRadius="10"/>
+                        </Button.Effect>
+                        <Grid Width="360" Height="60">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <fa:FontAwesome Icon="Solid_Microchip" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="42"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="18">
+                                Main Application<LineBreak/>
+                                인스턴스 생성
+                            </TextBlock>
+
+                        </Grid>
+                    </Button>
+
+                    <Button Click="GanttChartPrototypeInstanceClickedEventHandler" Width="400" Height="80" hc:BorderElement.CornerRadius="40" Margin="15">
+                        <Button.Effect>
+                            <DropShadowEffect Color="#FFC50075" Direction="0" ShadowDepth="0" Opacity="0.5" BlurRadius="10"/>
+                        </Button.Effect>
+                        <Grid Width="360" Height="60">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <fa:FontAwesome Icon="Solid_ChartGantt" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="42"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="18">
+                                Gantt Chart Prototype<LineBreak/>
+                                인스턴스 생성
+                            </TextBlock>
+                        </Grid>
+                    </Button>
+
+                    <Button Click="ConsoleDebuggerInstanceClickedEventHandler" Width="400" Height="80" hc:BorderElement.CornerRadius="40" Margin="15">
+                        <Button.Effect>
+                            <DropShadowEffect Color="#FFC50075" Direction="0" ShadowDepth="0" Opacity="0.5" BlurRadius="10"/>
+                        </Button.Effect>
+                        <Grid Width="360" Height="60">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <fa:FontAwesome Icon="Solid_Tv" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="42"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="18">
+                                Debugging Console<LineBreak/>
+                                콘솔 표시
+                            </TextBlock>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- Footer -->
+            <Grid Grid.Row="2">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14" Foreground="#FFC50075">
+                    Copyright(c) 2025 오!은영 솔루션 all rights reserved.
+                </TextBlock>
+            </Grid>
+        </Grid>
+    </Border>
 </Window>
