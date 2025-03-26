@@ -10,8 +10,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\PretendardVariable.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
     <PackageReference Include="HandyControls" Version="3.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Prototypes\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\PretendardVariable.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
