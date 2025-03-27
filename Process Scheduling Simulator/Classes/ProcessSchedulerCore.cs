@@ -6,19 +6,7 @@ using System.Threading.Tasks;
 
 namespace Process_Scheduling_Simulator.Classes
 {
-    class Process{
-        public int arrivalTime;
-        public int burstTime;
-        public int waitingTime;
-        public int turnaroundTime;
-        public int normalizedTTime;
 
-        public Process(params int[] args)
-        {
-            arrivalTime = args[0];
-            burstTime = args[1];
-        }
-    }
 
     abstract class ProcessSchedulerCore
     {
