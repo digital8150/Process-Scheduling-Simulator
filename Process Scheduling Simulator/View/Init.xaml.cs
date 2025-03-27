@@ -34,6 +34,7 @@ namespace Process_Scheduling_Simulator.View
             BorderMain.Height = 0;
         }
 
+        //UI Features
         private async void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
             await Task.Delay(100);
@@ -50,10 +51,17 @@ namespace Process_Scheduling_Simulator.View
             await Task.Delay(500);
             this.Close();
         }
+        private void Topbar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
 
-        private void MainApplicationInstanceClickedEventHandler(object sender, RoutedEventArgs e)
+        private async void MainApplicationInstanceClickedEventHandler(object sender, RoutedEventArgs e)
         {
             mainApplication = new MainWindow();
+            this.AppCloseClickedEventHandler(sender, e);
+            await Task.Delay(500);
             mainApplication.Show();
         }
 
@@ -69,11 +77,7 @@ namespace Process_Scheduling_Simulator.View
 
 
 
-        private void Topbar_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
-        }
+
 
 
     }

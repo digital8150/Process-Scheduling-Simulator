@@ -4,9 +4,157 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Process_Scheduling_Simulator"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:fa="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True"
+        Loaded="LoadedEventHandler"
+        ResizeMode="CanResizeWithGrip"
+        Title="Process Scheduling Simulator" Height="900" Width="1620" Background="Transparent">
+    <Border Name="BorderMain"  Background="#fafafa" CornerRadius="15">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
 
-    </Grid>
+            <!-- Header -->
+            <Grid Grid.Row="0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14">
+                    Process Scheduling Simulator
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0">
+                    <Button Margin="5,0" Width="20" Height="20" BorderBrush="Transparent" hc:BorderElement.Circular="True" hc:BorderElement.CornerRadius="10" Background="#fc3a3a" Click="AppCloseClickedEventHandler"/>
+                    <Button Margin="5,0" Width="20" Height="20" BorderBrush="Transparent" hc:BorderElement.Circular="True" hc:BorderElement.CornerRadius="10" Background="#fcaa1a" Click="AppMinimizeClickedEventHandler"/>
+                    <Button Margin="5,0" Width="20" Height="20" BorderBrush="Transparent" hc:BorderElement.Circular="True" hc:BorderElement.CornerRadius="10" Background="#3afc3a" Click="AppMaxmizeClickedEventHandler"/>
+                </StackPanel>
+                <Border MouseDown="Topbar_MouseDown" Margin="200,0" Background="Transparent"/>
+            </Grid>
+            
+            <!--Gantt-->
+            <Grid Grid.Row="1" Margin="15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <hc:ScrollViewer Name="ScrollViewerTimebar" Grid.Column="1"
+                         HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                         ScrollChanged="TimebarScrollChanged">
+                    <Canvas Name="TimebarCanvas" Height="50" Background="LightGray" HorizontalAlignment="Left"/>
+                </hc:ScrollViewer>
+
+                <hc:ScrollViewer Name="ScrollViewerProcessor" Grid.Row="1"
+                         VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled"
+                         ScrollChanged="ProcessorScrollChanged">
+                    <StackPanel Name="ProcessorStackPanel" Orientation="Vertical"/>
+                </hc:ScrollViewer>
+
+                <hc:ScrollViewer Name="ScrollViewerMain" Grid.Row="1" Grid.Column="1"
+                         ScrollChanged="MainScrollChainged" IsInertiaEnabled="True"
+                         HorizontalScrollBarVisibility="Visible"
+                         VerticalScrollBarVisibility="Visible">
+                    <Canvas Name="MainCanvas" Background="WhiteSmoke" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                </hc:ScrollViewer>
+
+                <Border Grid.Row="0" Margin="5" Grid.Column="0" Background="#fcfcfc" CornerRadius="15">
+                    <Border.Effect>
+                        <DropShadowEffect Opacity="0.5" ShadowDepth="0" BlurRadius="5"/>
+                    </Border.Effect>
+                    <TextBlock Text="Processor / Time" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontFamily="/Resources/#Pretendard Variable"/>
+                </Border>
+
+            </Grid>
+
+            <!--Settings & Stats-->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Margin="15" CornerRadius="15" Background="#fcfcfc">
+                    <Border.Effect>
+                        <DropShadowEffect Opacity="0.5" ShadowDepth="0" BlurRadius="15"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="75"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <!-- Header -->
+                        <Grid Grid.Row="0">
+                            <TextBlock VerticalAlignment="Center" Margin="15,0" FontFamily="/Resources/#Pretendard Variable" FontSize="24" FontWeight="Medium">
+                                <fa:FontAwesome Icon="Solid_Gear" Spin="True" SpinDuration="5"/> 설정
+                            </TextBlock>
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15,0">
+                                <Button Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
+                                    <TextBlock TextAlignment="Center">
+                                        <fa:FontAwesome Icon="Solid_ClockRotateLeft" FontSize="18"/> <LineBreak/> 스케줄링 설정
+                                    </TextBlock>
+                                    
+                                </Button>
+
+                                <Button Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
+                                    <TextBlock TextAlignment="Center">
+                                        <fa:FontAwesome Icon="Solid_Microchip" FontSize="18"/> <LineBreak/> 프로세서 설정
+                                    </TextBlock>
+
+                                </Button>
+
+                                <Button Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
+                                    <TextBlock TextAlignment="Center">
+                                        <fa:FontAwesome Icon="Solid_BarsProgress" FontSize="18"/> <LineBreak/> 프로세스 설정
+                                    </TextBlock>
+
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Column="1" Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="75"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <!-- Header -->
+                    <Grid Grid.Row="0">
+                        <TextBlock VerticalAlignment="Center" Margin="15,0" FontFamily="/Resources/#Pretendard Variable" FontSize="24" FontWeight="Medium">
+                            <fa:FontAwesome Icon="Solid_ChartBar"/> 결과
+                        </TextBlock>
+
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15" FontFamily="/Resources/#Pretendard Variable" FontSize="16" FontWeight="Medium" TextAlignment="Right">
+                            <fa:FontAwesome Icon="Solid_BoltLightning"/> P코어 소비 전력 : <Run Name="LabelPcoreWatt" Text="0.0"/>W <fa:FontAwesome Icon="Solid_Bolt" Margin="15,0,0,0"/> E코어 소비 전력 : <Run Name="LabelEcoreWatt" Text="0.0"/>W<LineBreak/>
+                            <fa:FontAwesome Icon="Solid_Clock" Margin="15,0,0,0"/> 평균 응답시간 : <Run Name="LabelAvgResponseTime" Text="0.0"/> <fa:FontAwesome Icon="Regular_Clock" Margin="15,0,0,0"/> 전체 수행시간 : <Run Name="LabelTotalElapsedTime" Text="0.0"/>
+                        </TextBlock>
+                    </Grid>
+                    
+                    <!--Cell-->
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding ProcessList}">
+                        
+                       
+                    </DataGrid>
+                </Grid>
+            </Grid>
+            
+
+            <!-- Footer -->
+            <Grid Grid.Row="3">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14" Foreground="#FFC50075">
+                    Copyright(c) 2025 오!은영 솔루션 all rights reserved.
+                </TextBlock>
+            </Grid>
+        </Grid>
+    </Border>
 </Window>

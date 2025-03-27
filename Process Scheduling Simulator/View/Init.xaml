@@ -27,7 +27,7 @@
                     Process Scheduling Simulator : Init
                 </TextBlock>
 
-                <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15,0">
+                <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0">
                     <Button Width="20" Height="20" BorderBrush="Transparent" hc:BorderElement.Circular="True" hc:BorderElement.CornerRadius="10" Background="#fc3a3a" Click="AppCloseClickedEventHandler"/>
                 </StackPanel>
                 <Border MouseDown="Topbar_MouseDown" Width="1000" Background="Transparent"/>
