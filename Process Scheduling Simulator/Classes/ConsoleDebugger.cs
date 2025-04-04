@@ -31,35 +31,6 @@ namespace Process_Scheduling_Simulator.Classes
             AllocConsole(); // 콘솔 창을 띄움
             Console.WriteLine("Debugger Initialized");
 
-            Console.WriteLine("Testing Gantt!");
-
-            GanttChartPrototype ganttChartWindow = Init.ganttChartPrototype;
-
-            // 프로세서 추가
-            int cpu1Index = ganttChartWindow.AddProcessor("CPU 1"); // 반환값: 0
-            int cpu2Index = ganttChartWindow.AddProcessor("CPU 2"); // 반환값: 1
-            int ioIndex = ganttChartWindow.AddProcessor("I/O Device"); // 반환값: 2
-            ganttChartWindow.AddProcessor("Network");            // 반환값: 3
-
-            // 간트 바 그리기 (예시 데이터)
-            // DrawGanttBar(double startTime, double endTime, int processorIndex, string processName, Brush barColor)
-
-            // CPU 1 작업
-            ganttChartWindow.DrawGanttBar(0, 5, cpu1Index, "P1", Brushes.LightCoral);
-            ganttChartWindow.DrawGanttBar(8, 12, cpu1Index, "P3", Brushes.LightCoral);
-            ganttChartWindow.DrawGanttBar(15, 18, cpu1Index, "P1", Brushes.LightCoral); // P1이 다시 실행
-
-            // CPU 2 작업
-            ganttChartWindow.DrawGanttBar(2, 7, cpu2Index, "P2", Brushes.LightSkyBlue);
-            ganttChartWindow.DrawGanttBar(12, 16, cpu2Index, "P4", Brushes.LightSkyBlue);
-
-            // I/O 작업
-            ganttChartWindow.DrawGanttBar(5, 8, ioIndex, "P1 (I/O)", Brushes.LightGreen); // P1의 I/O 대기
-            ganttChartWindow.DrawGanttBar(7, 11, ioIndex, "P2 (I/O)", Brushes.LightGreen); // P2의 I/O 대기
-
-            // Network 작업
-            ganttChartWindow.DrawGanttBar(11, 15, 3, "P2 (Net)", Brushes.LightYellow); // P2의 Network 작업 (인덱스 3)
-
 
         }
 

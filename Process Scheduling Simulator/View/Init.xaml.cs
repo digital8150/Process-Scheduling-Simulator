@@ -45,9 +45,9 @@ namespace Process_Scheduling_Simulator.View
 
         private async void AppCloseClickedEventHandler(object sender, RoutedEventArgs e)
         {
-            AnimationController.BeginAnimation(this, OpacityProperty, from:1, to:0, duration: 0.5, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(BorderMain, WidthProperty, 1280, 0, 0.7, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(BorderMain, HeightProperty, 720, 0, 0.7, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(this, OpacityProperty, from:1, to:0, duration: 0.3, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, WidthProperty, 1280, 0, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, HeightProperty, 720, 0, 0.5, easingFunction: new CubicEase());
             await Task.Delay(500);
             this.Close();
         }
@@ -61,7 +61,7 @@ namespace Process_Scheduling_Simulator.View
         {
             mainApplication = new MainWindow();
             this.AppCloseClickedEventHandler(sender, e);
-            await Task.Delay(500);
+            await Task.Delay(300);
             mainApplication.Show();
         }
 

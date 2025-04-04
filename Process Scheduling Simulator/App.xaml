@@ -10,8 +10,16 @@
                 <hc:ThemeResources/>
                 <hc:Theme/>
                 <!-- Other merged dictionaries here -->
+                
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
+            <Style TargetType="{x:Type Control}">
+                <Setter Property="FontFamily" Value="/Resources/#Pretendard Variable" />
+            </Style>
+
+            <Style TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="/Resources/#Pretendard Variable" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
