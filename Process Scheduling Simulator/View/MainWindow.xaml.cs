@@ -140,8 +140,28 @@ namespace Process_Scheduling_Simulator
 
         }
 
+        private void ViewChanger_hideAll()
+        {
+            Grid_ProcessorSettings.Visibility = Visibility.Collapsed;
+            Grid_SchedulingSettings.Visibility = Visibility.Collapsed;
+        }
+
+        private void ViewChanger_ProcessorSettingsClicked(object sender, RoutedEventArgs e)
+        {
+            ViewChanger_hideAll();
+            Grid_ProcessorSettings.Visibility = Visibility.Visible;
+        }
+
+        private void ViewChanger_SchedulingSettingsClicked(object sender, RoutedEventArgs e)
+        {
+            ViewChanger_hideAll();
+            Grid_SchedulingSettings.Visibility = Visibility.Visible;
+        }   
+
         private async void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
+            ViewChanger_hideAll();
+            ViewChanger_SchedulingSettingsClicked(sender, e);
             await Task.Delay(50);
             AnimationController.BeginAnimation(this, OpacityProperty, duration: 0.7, easingFunction: new CubicEase());
             AnimationController.BeginAnimation(this, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase());

@@ -60,19 +60,10 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 // 필요시 다른 상태 초기화
             }
 
-            // 각 프로세서의 상태 초기화
+            // 각 프로세서의 상태를 리셋 (LastActiveTick 포함)
             foreach (var proc in Processors)
             {
-                // Processor 클래스에 Reset 메서드가 있다면 호출하는 것이 좋음
-                // 예: proc.ResetState();
-                // 없다면, 여기서 직접 초기화 (예: 선점 메서드 호출로 강제 초기화)
-                if (!proc.IsIdle)
-                {
-                    // 안전하게 하기 위해, 실행 중인 프로세스가 있다면 강제로 제거 (이전 실행 잔여물 처리)
-                    // PreemptProcess는 Gantt에도 그리므로, Reset용 메서드가 더 적합할 수 있음
-                    proc.PreemptProcess(0); // 현재 시간을 0으로 가정하고 선점시켜 초기화
-                }
-                // proc._wasIdleLastTick = true; // Processor 내부 상태도 초기화 필요
+                proc.ResetState(); // 수정된 부분: ResetState 호출
             }
             Console.WriteLine("Scheduler and Processors Reset.");
         }

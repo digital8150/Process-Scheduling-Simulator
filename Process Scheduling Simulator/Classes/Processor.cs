@@ -7,27 +7,8 @@ using System.Threading.Tasks;
 namespace Process_Scheduling_Simulator.Classes
 {
     using System;
-    using System.Windows.Media; // Brush 사용을 위해 추가
+    using System.Windows.Media;
     using Process_Scheduling_Simulator.View;
-
-    // Init 클래스가 정의되어 있고, public static MainWindow mainApplication; 멤버가 있다고 가정합니다.
-    // 예시:
-    // public static class Init
-    // {
-    //     public static MainWindow mainApplication;
-    // }
-    // MainWindow 클래스에는 DrawGanttBar 메서드가 public으로 정의되어 있다고 가정합니다.
-    // 예시:
-    // public partial class MainWindow : Window
-    // {
-    //     // ... 기존 코드 ...
-    //     public void DrawGanttBar(double startTime, double endTime, int processorIndex, string processName, Brush barColor)
-    //     {
-    //         // MainWindow의 Gantt 차트 그리기 로직 구현
-    //         // 예: ganttChartControl.DrawGanttBar(startTime, endTime, processorIndex, processName, barColor);
-    //     }
-    //     // ...
-    // }
 
 
     public enum CoreType { P, E } // 코어 타입을 나타내는 열거형
@@ -47,7 +28,7 @@ namespace Process_Scheduling_Simulator.Classes
         private readonly int _processorIndexInGantt;
         private int _startTimeCurrentProcess = -1; // 프로세스 시작 시간
         private double _workRemaining = 0;         // 남은 작업량
-        private bool _wasIdleLastTick = true;      // 직전 Tick 유휴 상태 여부
+        private int _lastActiveTick = -1;      // 직전 Tick 유휴 상태 여부
 
         // _currentGanttBarElement 멤버 변수는 이 방식에서는 사용하지 않으므로 제거합니다.
 
@@ -57,14 +38,23 @@ namespace Process_Scheduling_Simulator.Classes
             Name = name;
             Type = type;
             _processorIndexInGantt = ganttIndex;
-            CurrentProcess = null;
-            _workRemaining = 0;
-            _startTimeCurrentProcess = -1;
-            _wasIdleLastTick = true;
+            ResetState();
 
             // 코어 타입별 설정
             if (type == CoreType.P) { PerformanceFactor = 2.0; ActivePower = 3.0; StartupPower = 0.5; }
             else { PerformanceFactor = 1.0; ActivePower = 1.0; StartupPower = 0.1; }
+        }
+
+        /// <summary>
+        /// 프로세서의 내부 상태를 초기화합니다. (시뮬레이션 시작 전 호출 필요)
+        /// </summary>
+        public void ResetState()
+        {
+            CurrentProcess = null;
+            _workRemaining = 0;
+            _startTimeCurrentProcess = -1;
+            // _wasIdleLastTick = true; // 필요시 유지 가능하나, _lastActiveTick 기반 로직에선 불필요
+            _lastActiveTick = -1;    // 마지막 활성 시간 초기화
         }
 
         // 프로세스 할당 (여기서는 그리기 로직 없음)
@@ -74,7 +64,6 @@ namespace Process_Scheduling_Simulator.Classes
             CurrentProcess = process;
             _workRemaining = CurrentProcess.RemainingBurstTime > 0 ? CurrentProcess.RemainingBurstTime : CurrentProcess.BurstTime;
             _startTimeCurrentProcess = currentTime;
-            _wasIdleLastTick = true; // 직전까지 유휴였음을 기록 (시동 전력 계산용)
             Console.WriteLine($"Time {currentTime}: Process {CurrentProcess.Name} assigned to {Name}.");
             // 첫 Tick 그리는 것은 Tick() 메서드에 맡김
             return true;
@@ -85,12 +74,8 @@ namespace Process_Scheduling_Simulator.Classes
         {
             if (IsIdle)
             {
-                _wasIdleLastTick = true;
                 return null;
             }
-
-            bool wasIdle = _wasIdleLastTick; // 전력 계산 위해 상태 저장
-            _wasIdleLastTick = false;      // 현재 Tick은 활성 상태
 
             // --- 매 Tick마다 간트 바 새로 그리기 ---
             if (CurrentProcess != null && Init.mainApplication != null && _startTimeCurrentProcess != -1)
@@ -187,17 +172,44 @@ namespace Process_Scheduling_Simulator.Classes
             return preemptedProcess;
         }
 
-        // 전력 계산 로직 (변경 없음)
-        public double GetCurrentTickPower(int currentTime)
+        /// <summary>
+        /// 현재 시간 Tick에 대한 전력 소모량을 계산합니다. (시동 전력 조건 수정됨)
+        /// </summary>
+        /// <param name="currentTime">현재 시뮬레이션 시간 (Tick)</param>
+        /// <returns>해당 Tick에서 소모된 전력량 (W)</returns>
+        public double CalculatePowerForTick(int currentTime) // 메서드 이름 변경 또는 오버로딩 가능
         {
-            if (IsIdle) { _wasIdleLastTick = true; return 0.0; }
-            else
+            double powerConsumed = 0.0;
+            bool isCurrentlyActive = !IsIdle; // 현재 Tick이 끝난 시점의 상태
+
+            if (isCurrentlyActive)
             {
-                double power = ActivePower;
-                if (_wasIdleLastTick) { power += StartupPower; }
-                _wasIdleLastTick = false;
-                return power;
+                // 기본 활성 전력은 소모됨
+                powerConsumed = ActivePower;
+
+                // 시동 전력 조건 확인: 현재 활성이면서, 마지막 활성 시간이 (현재시간 - 1) 보다 이전인가?
+                // 즉, (현재시간 - 1) Tick 동안은 완전히 유휴 상태였는가?
+                if (_lastActiveTick < currentTime - 1)
+                {
+                    powerConsumed += StartupPower;
+                    // Console.WriteLine($"  Debug Power: {Name} at Time {currentTime}. Startup Power Added. LastActive={_lastActiveTick}");
+                }
+                else
+                {
+                    // Console.WriteLine($"  Debug Power: {Name} at Time {currentTime}. Active Power Only. LastActive={_lastActiveTick}");
+                }
+
+                // 마지막 활성 시간 업데이트
+                _lastActiveTick = currentTime;
             }
+            else // 현재 유휴 상태
+            {
+                powerConsumed = 0.0;
+                // _lastActiveTick는 변경하지 않음 (마지막으로 활성이었던 시간 유지)
+                // Console.WriteLine($"  Debug Power: {Name} at Time {currentTime}. Idle Power = 0. LastActive={_lastActiveTick}");
+            }
+
+            return powerConsumed;
         }
     }
 }

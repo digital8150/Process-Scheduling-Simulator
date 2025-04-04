@@ -177,11 +177,13 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     }
                 }
 
-                // 5. 전력 소모량 누적
+                // 5. 전력 소모량 누적 (Tick 처리 *후*)
+
                 foreach (var processor in Processors)
                 {
-                    // Tick 시작 전 기록된 상태(`processorWasIdle[processor]`)를 사용
-                    TotalPowerConsumption += GetProcessorPowerForTick(processor, CurrentTime, processorWasIdle[processor]);
+                    // 수정된 CalculatePowerForTick 호출
+                    double tickPower = processor.CalculatePowerForTick(CurrentTime);
+                    TotalPowerConsumption += tickPower; // 누적
                 }
                 Console.WriteLine($"  Power: Accumulated Power = {TotalPowerConsumption:F1}W");
 
@@ -210,32 +212,6 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
 
             // 최종 평균 성능 지표 계산 및 출력
             CalculateAverageMetrics();
-        }
-
-
-        /// <summary>
-        /// 지정된 프로세서의 현재 Tick 전력 소모량을 계산하는 헬퍼 메서드.
-        /// </summary>
-        private double GetProcessorPowerForTick(Processor processor, int currentTime, bool wasIdleBeforeTick)
-        {
-            // Processor 클래스의 GetCurrentTickPower 메서드를 사용하거나, 여기서 직접 계산
-            // return processor.GetCurrentTickPower(currentTime, wasIdleBeforeTick); // Processor 메서드 사용 시
-
-            // 직접 계산 시:
-            if (processor.IsIdle)
-            {
-                return 0.0;
-            }
-            else
-            {
-                double power = processor.ActivePower;
-                if (wasIdleBeforeTick)
-                { // 이번 Tick에 막 시작했다면 시동 전력 추가
-                    power += processor.StartupPower;
-                }
-                // Console.WriteLine($"   Power Calc: {processor.Name} consumes {power}W (Active: {processor.ActivePower}W, Startup: {(wasIdleBeforeTick ? processor.StartupPower : 0)}W)");
-                return power;
-            }
         }
     }
 }

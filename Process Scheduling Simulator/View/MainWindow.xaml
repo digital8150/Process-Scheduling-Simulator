@@ -100,14 +100,14 @@
                             </TextBlock>
 
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15,0">
-                                <Button Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
+                                <Button Click="ViewChanger_SchedulingSettingsClicked" Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
                                     <TextBlock TextAlignment="Center">
                                         <fa:FontAwesome Icon="Solid_ClockRotateLeft" FontSize="18"/> <LineBreak/> 스케줄링 설정
                                     </TextBlock>
                                     
                                 </Button>
 
-                                <Button Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
+                                <Button Click="ViewChanger_ProcessorSettingsClicked" Height="55" FontFamily="/Resources/#Pretendard Variable" Margin="5,0">
                                     <TextBlock TextAlignment="Center">
                                         <fa:FontAwesome Icon="Solid_Microchip" FontSize="18"/> <LineBreak/> 프로세서 설정
                                     </TextBlock>
@@ -124,18 +124,77 @@
                         </Grid>
                         
                         <!-- Settings -->
-                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings">
+                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Collapsed">
                             <StackPanel Margin="15">
-                                <hc:ComboBox Name="AlgorithmComboBox" hc:TitleElement.Title="Algorithm"  Margin="5">
-                                    <ComboBoxItem Content="FCFS"/>
-                                    <ComboBoxItem Content="RR"/>
-                                    <ComboBoxItem Content="SPN"/>
-                                    <ComboBoxItem Content="SRTN"/>
-                                    <ComboBoxItem Content="HRRN"/>
-                                    <ComboBoxItem Content="오!운영식 방법"/>
-                                </hc:ComboBox>
-                                <hc:TextBox Name="PcoreCountTextBox" hc:TitleElement.Title="P Core Count" FontFamily="/Resources/#Pretendard Variable" Margin="5"/>
-                                <hc:TextBox Name="EcoreCountTextBox" hc:TitleElement.Title="E core Count" FontFamily="/Resources/#Pretendard Variable" Margin="5"/>
+                                <Grid Height="75" Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_ClockRotateLeft"/> 스케줄링 알고리즘 <LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">스케줄링 알고리즘을 선택합니다.</Run>
+                                    </TextBlock>
+                                    <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0">
+                                        <ComboBoxItem Content="FCFS"/>
+                                        <ComboBoxItem Content="RR"/>
+                                        <ComboBoxItem Content="SPN"/>
+                                        <ComboBoxItem Content="SRTN"/>
+                                        <ComboBoxItem Content="HRRN"/>
+                                        <ComboBoxItem Content="오!운영식 방법"/>
+                                    </hc:ComboBox>
+                                </Grid>
+                                
+                                <Grid Height="75" Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_HourglassStart"/> Time Quantum <LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">RR 스케줄러에서 사용할 δ를 지정해주세요.</Run>
+                                    </TextBlock>
+                                    <hc:TextBox Grid.Column="1" Name="TimeQuantumTextBox" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+                                </Grid>
+
+
+                            </StackPanel>
+                        </Grid>
+                        <Grid Grid.Row="1" Name="Grid_ProcessorSettings" Visibility="Hidden" d:Visibility="Visible">
+                            <StackPanel Margin="15">
+                                <Grid Height="75" Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_Atom"/> P Core 개수<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">성능 코어의 개수를 설정합니다.</Run>
+                                    </TextBlock>
+                                    <hc:TextBox Grid.Column="1" Name="PcoreCountTextBox" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+
+                                </Grid>
+
+                                <Grid Height="75" Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_Atom"/> E Core 개수<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">효율 코어의 개수를 설정합니다.</Run>
+                                    </TextBlock>
+                                    <hc:TextBox Grid.Column="1" Name="EcoreCountTextBox" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+
+                                </Grid>
+                                <TextBlock Margin="10" FontSize="16">
+                                    <fa:FontAwesome Icon="Regular_CircleQuestion"/> <Run FontWeight="SemiBold" FontSize="18">코어에 대한 정보</Run>
+                                    <LineBreak/>
+                                    P Core는 1초에 2의 일을 처리할 수 있으며 1초당 3W를 소모합니다. Idle 상태에서 시동 시 0.5W를 소모합니다.<LineBreak/>
+                                    E Core는 1초에 1의 일을 처리할 수 있으며 1초당 1W를 소모합니다. Idle 상태에서 시동 시 0.1W를 소모합니다.<LineBreak/>
+                                </TextBlock>
+
+
                             </StackPanel>
                         </Grid>
                         
@@ -177,7 +236,7 @@
             <!-- Footer -->
             <Grid Grid.Row="3">
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14" Foreground="#FFC50075">
-                    Copyright(c) 2025 오!은영 솔루션 all rights reserved.
+                    Copyright(c) 2025 오!운영 솔루션 all rights reserved.
                 </TextBlock>
             </Grid>
         </Grid>
