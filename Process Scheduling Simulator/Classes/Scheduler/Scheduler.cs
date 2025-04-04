@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Process_Scheduling_Simulator.Classes.Scheduler.Scheduler
+// 이 클래스는 이전 답변에서 수정된 내용과 동일하게 유지됩니다.
+// TotalPowerConsumption 속성이 없고, CalculateAverageMetrics에서
+// 각 Processor의 TotalConsumedPower를 합산하여 결과를 출력합니다.
+// Reset 메서드도 각 Processor의 ResetState를 호출합니다.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,88 +11,62 @@ using System.Threading.Tasks;
 
 namespace Process_Scheduling_Simulator.Classes.Scheduler
 {
-
     public abstract class Scheduler
     {
-        // --- Properties ---
-        public List<Process> Processes { get; protected set; }       // 시뮬레이션 대상 프로세스 목록 (원본 또는 복사본)
-        public List<Processor> Processors { get; protected set; }     // 사용 가능한 프로세서(코어) 목록
-        public List<Process> CompletedProcesses { get; protected set; } // 실행 완료된 프로세스 목록
-        public int CurrentTime { get; protected set; }               // 현재 시뮬레이션 시간
-        public double TotalPowerConsumption { get; protected set; } // 누적 총 전력 소모량
-                                                                    // 필요에 따라 평균 WT, TT, NTT 등 결과 저장 변수 추가 가능
+        public List<Process> Processes { get; protected set; }
+        public List<Processor> Processors { get; protected set; }
+        public List<Process> CompletedProcesses { get; protected set; }
+        public int CurrentTime { get; protected set; }
 
-        /// <summary>
-        /// 스케줄러 생성자
-        /// </summary>
-        /// <param name="processes">스케줄링할 프로세스 목록</param>
-        /// <param name="processors">사용할 프로세서 목록</param>
+        public double TotalPCorePower { get; protected set; } // 최종 결과 저장용 (선택적)
+        public double TotalECorePower { get; protected set; } // 최종 결과 저장용 (선택적)
+        public double OverallTotalPower { get; protected set; } // 최종 결과 저장용 (선택적)
+
+
         protected Scheduler(List<Process> processes, List<Processor> processors)
         {
-            // 원본 리스트를 수정하지 않도록 프로세스 목록 복사 (Deep Copy 권장)
-            // 여기서는 간단히 새 리스트를 만들고, Reset에서 상태 초기화
-            Processes = processes.Select(p => new Process(p.Name, p.ArrivalTime, p.BurstTime, p.ProcessColor)
-            {
-                // 생성자에서 RemainingBurstTime = BurstTime 처리 가정
-                // 필요시 다른 초기값 복사
-            }).ToList();
-
-            Processors = processors; // 프로세서 목록 참조
+            Processes = processes.Select(p => new Process(p.Name, p.ArrivalTime, p.BurstTime, p.ProcessColor)).ToList();
+            Processors = processors;
             CompletedProcesses = new List<Process>();
         }
 
-        /// <summary>
-        /// 스케줄링 시뮬레이션을 실행하는 추상 메서드. 파생 클래스에서 구현해야 함.
-        /// </summary>
         public abstract Task Schedule();
 
-        /// <summary>
-        /// 시뮬레이션 상태를 초기화하는 메서드.
-        /// </summary>
         public virtual void Reset()
         {
             CurrentTime = 0;
-            TotalPowerConsumption = 0.0;
             CompletedProcesses.Clear();
-
-            // 각 프로세스의 상태 초기화 (특히 남은 실행 시간)
-            foreach (var p in Processes)
-            {
-                p.RemainingBurstTime = p.BurstTime; // 남은 시간을 원래 BurstTime으로 복원
-                p.WaitingTime = 0;
-                p.TurnaroundTime = 0;
-                p.NormalizedTTime = 0.0;
-                // 필요시 다른 상태 초기화
-            }
-
-            // 각 프로세서의 상태를 리셋 (LastActiveTick 포함)
-            foreach (var proc in Processors)
-            {
-                proc.ResetState(); // 수정된 부분: ResetState 호출
-            }
+            foreach (var p in Processes) { p.ResetState(); }
+            foreach (var proc in Processors) { proc.ResetState(); } // 프로세서 상태 및 전력 리셋
             Console.WriteLine("Scheduler and Processors Reset.");
+            TotalPCorePower = 0;
+            TotalECorePower = 0;
+            OverallTotalPower = 0;
         }
 
-        /// <summary>
-        /// 완료된 프로세스들의 평균 성능 지표를 계산하고 출력하는 메서드 (옵션).
-        /// </summary>
         public virtual void CalculateAverageMetrics()
         {
-            if (CompletedProcesses.Count == 0)
+            if (CompletedProcesses.Count > 0)
+            {
+                double avgWT = CompletedProcesses.Average(p => p.WaitingTime);
+                double avgTT = CompletedProcesses.Average(p => p.TurnaroundTime);
+                double avgNTT = CompletedProcesses.Average(p => p.NormalizedTTime);
+                Console.WriteLine($"Average Waiting Time (WT): {avgWT:F2}");
+                Console.WriteLine($"Average Turnaround Time (TT): {avgTT:F2}");
+                Console.WriteLine($"Average Normalized Turnaround Time (NTT): {avgNTT:F2}");
+            }
+            else
             {
                 Console.WriteLine("No processes completed.");
-                return;
             }
 
-            double avgWT = CompletedProcesses.Average(p => p.WaitingTime);
-            double avgTT = CompletedProcesses.Average(p => p.TurnaroundTime);
-            double avgNTT = CompletedProcesses.Average(p => p.NormalizedTTime); // Process 클래스에서 double로 가정
+            TotalPCorePower = Processors.Where(p => p.Type == CoreType.P).Sum(p => p.TotalConsumedPower);
+            TotalECorePower = Processors.Where(p => p.Type == CoreType.E).Sum(p => p.TotalConsumedPower);
+            OverallTotalPower = TotalPCorePower + TotalECorePower;
 
-            Console.WriteLine($"Average Waiting Time (WT): {avgWT:F2}");
-            Console.WriteLine($"Average Turnaround Time (TT): {avgTT:F2}");
-            Console.WriteLine($"Average Normalized Turnaround Time (NTT): {avgNTT:F2}");
-
-            // 결과를 저장해야 한다면 여기에 로직 추가
+            Console.WriteLine($"Total P-Core Power Consumed: {TotalPCorePower:F1}W");
+            Console.WriteLine($"Total E-Core Power Consumed: {TotalECorePower:F1}W");
+            Console.WriteLine($"Overall Total Power Consumed: {OverallTotalPower:F1}W");
         }
     }
 }
