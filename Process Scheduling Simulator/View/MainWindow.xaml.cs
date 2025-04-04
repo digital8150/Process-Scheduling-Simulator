@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Shell;
 using Process_Scheduling_Simulator.Classes;
+using Process_Scheduling_Simulator.Classes.Scheduler;
 using Process_Scheduling_Simulator.View;
 
 namespace Process_Scheduling_Simulator
@@ -70,6 +71,17 @@ namespace Process_Scheduling_Simulator
             set { _normalizedTTime = value; OnPropertyChanged("NormalizedTTime"); }
         }
 
+        private Brush _processColor;
+        public Brush ProcessColor
+        {
+            get { return _processColor ?? Brushes.Gray; } // 기본값으로 회색 반환
+            set
+            {
+                _processColor = value;
+                OnPropertyChanged("ProcessColor");
+            }
+        }
+
         // --- INotifyPropertyChanged 구현 ---
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -78,7 +90,7 @@ namespace Process_Scheduling_Simulator
         }
 
         // --- 생성자 (예시) ---
-        public Process(string name, int arrivalTime, int burstTime)
+        public Process(string name, int arrivalTime, int burstTime, Brush color)
         {
             Name = name; // 이름 설정
             ArrivalTime = arrivalTime;
@@ -87,6 +99,7 @@ namespace Process_Scheduling_Simulator
             WaitingTime = 0;
             TurnaroundTime = 0;
             NormalizedTTime = 0;
+            ProcessColor = color; // 기본 색상 설정
         }
 
         // 기본 생성자 (필요시)
@@ -107,13 +120,12 @@ namespace Process_Scheduling_Simulator
             this.Opacity = 0;
             ProcessList = new ObservableCollection<Process>()
             {
-                new("P1", 0, 3), // 이름 부여
-                new("P2", 1, 5),
-                new("P3", 2, 2)
+                new("P1", 0, 3, Brushes.Gray), // 이름 부여
+                new("P2", 1, 5, Brushes.Gray),
+                new("P3", 2, 2, Brushes.Gray)
             };
 
             DataContext = this;
-            testGantt();
 
         }
 
@@ -136,36 +148,181 @@ namespace Process_Scheduling_Simulator
                 this.DragMove();
         }
 
-
-        private void testGantt()
+        private async void SchedulerStartClickedHandler(object sender, RoutedEventArgs e)
         {
-            MainWindow ganttChartWindow = this;
+            AssignColorsToProcessList();
+            try // 오류 발생 가능성이 있으므로 try-catch 블록 사용
+            {
+                // --- 1. 이전 결과 초기화 ---
+                // Gantt 차트 초기화 (MainWindow에 구현된 ClearChart 메서드 사용)
+                this.ClearChart(); // 'this'는 MainWindow 인스턴스
+                                   // 결과 테이블/텍스트 초기화
+                LabelTotalPower.Text = "0.0";
+                LabelAvgResponseTime.Text = "0.0";
+                LabelTotalElapsedTime.Text = "0.0";
+                LabelAvgNTTime.Text = "0.0";
 
-            // 프로세서 추가
-            int cpu1Index = ganttChartWindow.AddProcessor("CPU 1"); // 반환값: 0
-            int cpu2Index = ganttChartWindow.AddProcessor("CPU 2"); // 반환값: 1
-            int ioIndex = ganttChartWindow.AddProcessor("I/O Device"); // 반환값: 2
-            ganttChartWindow.AddProcessor("Network");            // 반환값: 3
 
-            // 간트 바 그리기 (예시 데이터)
-            // DrawGanttBar(double startTime, double endTime, int processorIndex, string processName, Brush barColor)
+                // --- 2. 입력 값 가져오기 ---
+                string selectedAlgorithm = ((ComboBoxItem)AlgorithmComboBox.SelectedItem)?.Content.ToString();
+                if (string.IsNullOrEmpty(selectedAlgorithm))
+                {
+                    MessageBox.Show("Please select a scheduling algorithm.");
+                    return;
+                }
 
-            // CPU 1 작업
-            ganttChartWindow.DrawGanttBar(0, 5, cpu1Index, "P1", Brushes.LightCoral);
-            ganttChartWindow.DrawGanttBar(8, 12, cpu1Index, "P3", Brushes.LightCoral);
-            ganttChartWindow.DrawGanttBar(15, 18, cpu1Index, "P1", Brushes.LightCoral); // P1이 다시 실행
+                // 현재 UI에 있는 프로세스 목록 가져오기 (ObservableCollection<Process> ProcessList 가정)
+                List<Process> processesToSchedule = ProcessList.ToList(); // 복사본 사용
+                if (!processesToSchedule.Any())
+                {
+                    MessageBox.Show("Please add processes to schedule.");
+                    return;
+                }
 
-            // CPU 2 작업
-            ganttChartWindow.DrawGanttBar(2, 7, cpu2Index, "P2", Brushes.LightSkyBlue);
-            ganttChartWindow.DrawGanttBar(12, 16, cpu2Index, "P4", Brushes.LightSkyBlue);
 
-            // I/O 작업
-            ganttChartWindow.DrawGanttBar(5, 8, ioIndex, "P1 (I/O)", Brushes.LightGreen); // P1의 I/O 대기
-            ganttChartWindow.DrawGanttBar(7, 11, ioIndex, "P2 (I/O)", Brushes.LightGreen); // P2의 I/O 대기
+                // 프로세서 개수 가져오기 (UI 컨트롤 이름은 예시)
+                int numPcores = 0;
+                int numEcores = 0;
+                if (!int.TryParse(PcoreCountTextBox.Text, out numPcores) || numPcores < 0 ||
+                    !int.TryParse(EcoreCountTextBox.Text, out numEcores) || numEcores < 0)
+                {
+                    MessageBox.Show("Invalid P-core or E-core count. Please enter non-negative integers.");
+                    return;
+                }
+                int totalProcessors = numPcores + numEcores;
+                if (totalProcessors <= 0)
+                {
+                    MessageBox.Show("Total number of processors must be greater than zero.");
+                    return;
+                }
+                // PDF 제약조건 확인 [Source 6]
+                if (processesToSchedule.Count > 15 || totalProcessors > 4)
+                {
+                    MessageBox.Show($"Input Error: Max 15 processes and Max 4 processors allowed.\n(Current: {processesToSchedule.Count} processes, {totalProcessors} processors)");
+                    return;
+                }
 
-            // Network 작업
-            ganttChartWindow.DrawGanttBar(11, 15, 3, "P2 (Net)", Brushes.LightYellow); // P2의 Network 작업 (인덱스 3)
+
+                // --- 3. Init.mainApplication 확인 ---
+                if (Init.mainApplication == null)
+                {
+                    Init.mainApplication = this; // 현재 MainWindow 인스턴스 할당
+                    Console.WriteLine("Init.mainApplication initialized.");
+                }
+
+                // --- 4. 프로세서 인스턴스 생성 ---
+                List<Processor> processors = new List<Processor>();
+                // P-core 생성
+                for (int i = 0; i < numPcores; i++)
+                {
+                    string processorName = $"P-Core {i}";
+                    // Gantt 차트 UI에 먼저 추가하고 인덱스 받기
+                    int ganttIndex = this.AddProcessor(processorName); // MainWindow의 AddProcessor 호출
+                    processors.Add(new Processor(processorName, CoreType.P, ganttIndex));
+                    Console.WriteLine($"Created Processor: {processorName} at Gantt Index {ganttIndex}");
+                }
+                // E-core 생성
+                for (int i = 0; i < numEcores; i++)
+                {
+                    string processorName = $"E-Core {i}";
+                    int ganttIndex = this.AddProcessor(processorName);
+                    processors.Add(new Processor(processorName, CoreType.E, ganttIndex));
+                    Console.WriteLine($"Created Processor: {processorName} at Gantt Index {ganttIndex}");
+                }
+
+                // --- 5. 스케줄러 인스턴스 생성 ---
+                Scheduler scheduler = null;
+                switch (selectedAlgorithm)
+                {
+                    case "HRRN":
+                        scheduler = new HRRNScheduler(processesToSchedule, processors);
+                        break;
+                    // case "FCFS":
+                    //     scheduler = new FCFSScheduler(processesToSchedule, processors);
+                    //     break;
+                    // case "RR":
+                    //     int timeQuantum;
+                    //     if(!int.TryParse(TimeQuantumTextBox.Text, out timeQuantum) || timeQuantum <= 0) {
+                    //         MessageBox.Show("Invalid Time Quantum for RR."); return;
+                    //     }
+                    //     scheduler = new RRScheduler(processesToSchedule, processors, timeQuantum);
+                    //     break;
+                    // ... 다른 알고리즘 케이스 추가 ...
+                    case "FCFS": // 예시 추가
+                    case "SPN":
+                    case "SRTN":
+                    case "RR":
+                        MessageBox.Show($"Algorithm '{selectedAlgorithm}' is selected but not implemented in this example.");
+                        // 다른 스케줄러 구현 후 주석 해제
+                        return; // 임시로 종료
+                    default:
+                        MessageBox.Show($"Selected algorithm '{selectedAlgorithm}' is not recognized or implemented.");
+                        return;
+                }
+                Console.WriteLine($"Scheduler created for algorithm: {selectedAlgorithm}");
+
+
+                // --- 6. 시뮬레이션 실행 ---
+                Console.WriteLine("Starting simulation...");
+                await scheduler.Schedule(); // 여기가 핵심! 시뮬레이션 루프 실행
+                Console.WriteLine("Simulation finished.");
+
+                // --- 7. 결과 표시 ---
+                Console.WriteLine("Displaying results...");
+                // 완료된 프로세스 목록을 결과 그리드에 바인딩
+                ResultsDataGrid.ItemsSource = scheduler.CompletedProcesses;
+
+                // 요약 정보 업데이트
+                LabelTotalPower.Text = $"{scheduler.TotalPowerConsumption:F1}";
+                LabelTotalElapsedTime.Text = $"{scheduler.CurrentTime}";
+
+                // 평균값 계산 및 표시
+                if (scheduler.CompletedProcesses.Any())
+                {
+                    LabelAvgResponseTime.Text = $"{scheduler.CompletedProcesses.Average(p => p.TurnaroundTime):F2}";
+                    LabelAvgNTTime.Text = $"{scheduler.CompletedProcesses.Average(p => p.NormalizedTTime):F2}";
+                }
+                else
+                {
+                    Console.WriteLine("No processes were completed during the simulation.");
+                }
+                MessageBox.Show($"{selectedAlgorithm} simulation completed successfully!"); // 사용자 알림
+
+
+            }
+            catch (Exception ex)
+            {
+                // 오류 처리
+                HandyControl.Controls.Growl.Error($"시뮬레이션 중 오류가 발생했습니다.: {ex.Message}\n\n{ex.StackTrace}");
+                Console.WriteLine($"!!! Simulation Error: {ex}");
+            }
         }
+
+        private List<Brush> _processColors = new List<Brush>
+        {
+            Brushes.DodgerBlue, Brushes.LimeGreen, Brushes.OrangeRed, Brushes.MediumOrchid, Brushes.Gold,
+            Brushes.Tomato, Brushes.Turquoise, Brushes.HotPink, Brushes.YellowGreen, Brushes.SlateBlue,
+            Brushes.DarkSeaGreen, Brushes.IndianRed, Brushes.CadetBlue, Brushes.Plum, Brushes.BurlyWood
+            // 최대 15개 프로세스 지원 가정 [Source 6]
+        };
+        private void AssignColorsToProcessList()
+        {
+            _nextColorIndex = 0; // 색인 초기화
+            foreach (var process in ProcessList)
+            {
+                process.ProcessColor = GetNextProcessColor();
+            }
+        }
+
+        // 다음 프로세스 색상을 순환하며 반환하는 헬퍼 메서드
+        private Brush GetNextProcessColor()
+        {
+            Brush color = _processColors[_nextColorIndex % _processColors.Count];
+            _nextColorIndex++;
+            return color;
+        }
+
+        private int _nextColorIndex = 0;
 
         /* Gantt Chart Implementation */
         // --- 상수 정의 ---
@@ -507,5 +664,7 @@ namespace Process_Scheduling_Simulator
         {
             this.WindowState = WindowState.Minimized;
         }
+
+
     }
 }

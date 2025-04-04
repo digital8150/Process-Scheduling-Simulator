@@ -16,7 +16,7 @@
     <Border Name="BorderMain"  Background="#fafafa" CornerRadius="15">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="50"/>
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="30"/>
@@ -90,7 +90,9 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="75"/>
                             <RowDefinition/>
+                            <RowDefinition Height="75"/>
                         </Grid.RowDefinitions>
+                        
                         <!-- Header -->
                         <Grid Grid.Row="0">
                             <TextBlock VerticalAlignment="Center" Margin="15,0" FontFamily="/Resources/#Pretendard Variable" FontSize="24" FontWeight="Medium">
@@ -120,6 +122,29 @@
                                 </Button>
                             </StackPanel>
                         </Grid>
+                        
+                        <!-- Settings -->
+                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings">
+                            <StackPanel Margin="15">
+                                <hc:ComboBox Name="AlgorithmComboBox" hc:TitleElement.Title="Algorithm"  Margin="5">
+                                    <ComboBoxItem Content="FCFS"/>
+                                    <ComboBoxItem Content="RR"/>
+                                    <ComboBoxItem Content="SPN"/>
+                                    <ComboBoxItem Content="SRTN"/>
+                                    <ComboBoxItem Content="HRRN"/>
+                                    <ComboBoxItem Content="오!운영식 방법"/>
+                                </hc:ComboBox>
+                                <hc:TextBox Name="PcoreCountTextBox" hc:TitleElement.Title="P Core Count" FontFamily="/Resources/#Pretendard Variable" Margin="5"/>
+                                <hc:TextBox Name="EcoreCountTextBox" hc:TitleElement.Title="E core Count" FontFamily="/Resources/#Pretendard Variable" Margin="5"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Footer -->
+                        <Grid Grid.Row="2">
+                            <Button Click="SchedulerStartClickedHandler" VerticalAlignment="Stretch" Height="35" HorizontalAlignment="Stretch" Margin="15,0" Style="{StaticResource ButtonPrimary}" FontFamily="/Resources/#Pretendard Variable">
+                                스케줄링 시작
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Border>
 
@@ -135,13 +160,13 @@
                         </TextBlock>
 
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15" FontFamily="/Resources/#Pretendard Variable" FontSize="16" FontWeight="Medium" TextAlignment="Right">
-                            <fa:FontAwesome Icon="Solid_BoltLightning"/> P코어 소비 전력 : <Run Name="LabelPcoreWatt" Text="0.0"/>W <fa:FontAwesome Icon="Solid_Bolt" Margin="15,0,0,0"/> E코어 소비 전력 : <Run Name="LabelEcoreWatt" Text="0.0"/>W<LineBreak/>
-                            <fa:FontAwesome Icon="Solid_Clock" Margin="15,0,0,0"/> 평균 응답시간 : <Run Name="LabelAvgResponseTime" Text="0.0"/> <fa:FontAwesome Icon="Regular_Clock" Margin="15,0,0,0"/> 전체 수행시간 : <Run Name="LabelTotalElapsedTime" Text="0.0"/>
+                            <fa:FontAwesome Icon="Solid_Bolt" Margin="15,0,0,0"/> 소비 전력 : <Run Name="LabelTotalPower" Text="0.0"/>W<LineBreak/>
+                            <fa:FontAwesome Icon="Solid_Clock" Margin="15,0,0,0"/> 평균 응답시간 : <Run Name="LabelAvgResponseTime" Text="0.0"/> <fa:FontAwesome Icon="Solid_Clock" Margin="15,0,0,0"/> 평균 NTT : <Run Name="LabelAvgNTTime" Text="0.0"/>  <fa:FontAwesome Icon="Regular_Clock" Margin="15,0,0,0"/> 전체 수행시간 : <Run Name="LabelTotalElapsedTime" Text="0.0"/>
                         </TextBlock>
                     </Grid>
                     
                     <!--Cell-->
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding ProcessList}">
+                    <DataGrid Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsEnabled="False">
                         
                        
                     </DataGrid>
