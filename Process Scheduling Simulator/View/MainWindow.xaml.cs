@@ -102,6 +102,18 @@ namespace Process_Scheduling_Simulator
             ProcessColor = color; // 기본 색상 설정
         }
 
+        // Add a ResetState method if needed
+        public void ResetState()
+        {
+            // Reset metrics calculated during simulation
+            WaitingTime = 0;
+            TurnaroundTime = 0;
+            NormalizedTTime = 0.0;
+            // Crucially, reset the remaining burst time to the original burst time
+            RemainingBurstTime = this.BurstTime;
+            // Reset any other state variables (like start time, completion time if tracked)
+        }
+
         // 기본 생성자 (필요시)
         public Process() { }
     }
@@ -120,15 +132,15 @@ namespace Process_Scheduling_Simulator
             this.Opacity = 0;
             ProcessList = new ObservableCollection<Process>()
             {
-                new("P1", 0, 3, Brushes.Gray), // 이름 부여
-                new("P2", 1, 5, Brushes.Gray),
-                new("P3", 2, 2, Brushes.Gray),
-                new("P4", 2, 7, Brushes.Gray),
-                new("P5", 3, 3, Brushes.Gray),
-                new("P6", 4, 2, Brushes.Gray),
-                new("P7", 5, 5, Brushes.Gray),
-                new("P8", 6, 5, Brushes.Gray),
-                new("P9", 7, 4, Brushes.Gray),
+                new("P01", 0, 3, Brushes.Gray), // 이름 부여
+                new("P02", 1, 5, Brushes.Gray),
+                new("P03", 2, 2, Brushes.Gray),
+                new("P04", 2, 7, Brushes.Gray),
+                new("P05", 3, 3, Brushes.Gray),
+                new("P06", 4, 2, Brushes.Gray),
+                new("P07", 5, 5, Brushes.Gray),
+                new("P08", 6, 5, Brushes.Gray),
+                new("P09", 7, 4, Brushes.Gray),
                 new("P10",7, 6, Brushes.Gray),
                 new("P11", 8, 3, Brushes.Gray),
                 new("P12", 9, 4, Brushes.Gray),
@@ -138,12 +150,14 @@ namespace Process_Scheduling_Simulator
 
             DataContext = this;
 
+
         }
 
         private void ViewChanger_hideAll()
         {
             Grid_ProcessorSettings.Visibility = Visibility.Collapsed;
             Grid_SchedulingSettings.Visibility = Visibility.Collapsed;
+            Grid_ProcessSettings.Visibility = Visibility.Collapsed;
         }
 
         private void ViewChanger_ProcessorSettingsClicked(object sender, RoutedEventArgs e)
@@ -158,8 +172,16 @@ namespace Process_Scheduling_Simulator
             Grid_SchedulingSettings.Visibility = Visibility.Visible;
         }   
 
+        private void ViewChanger_ProcessSettingsClicked(object sender, RoutedEventArgs e)
+        {
+            ViewChanger_hideAll();
+            Grid_ProcessSettings.Visibility = Visibility.Visible;
+        }
+
         private async void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
+            DrawGanttBar(0, 0, 0, "P1", Brushes.Gray);
+            ClearChart();
             ViewChanger_hideAll();
             ViewChanger_SchedulingSettingsClicked(sender, e);
             await Task.Delay(50);
@@ -181,8 +203,19 @@ namespace Process_Scheduling_Simulator
                 this.DragMove();
         }
 
+        private bool schedulerStarted = false; // 스케줄러 시작 여부 플래그
         private async void SchedulerStartClickedHandler(object sender, RoutedEventArgs e)
         {
+            (sender as Button).IsEnabled = false; // 버튼 비활성화
+            if (schedulerStarted)
+            {
+                schedulerStarted = false; // 스케줄러가 이미 시작된 경우
+                ResultsDataGrid.ItemsSource = this.ProcessList; // 결과 그리드 초기화
+                (sender as Button).Content = "시뮬레이션 시작"; // 버튼 텍스트 변경
+                (sender as Button).IsEnabled = true;
+                ClearChart(); // Gantt 차트 초기화
+                return;
+            }
             AssignColorsToProcessList();
             try // 오류 발생 가능성이 있으므로 try-catch 블록 사용
             {
@@ -190,7 +223,8 @@ namespace Process_Scheduling_Simulator
                 // Gantt 차트 초기화 (MainWindow에 구현된 ClearChart 메서드 사용)
                 this.ClearChart(); // 'this'는 MainWindow 인스턴스
                                    // 결과 테이블/텍스트 초기화
-                LabelTotalPower.Text = "0.0";
+                LabelPcorePower.Text = "0.0";
+                LabelEcorePower.Text = "0.0";
                 LabelAvgResponseTime.Text = "0.0";
                 LabelTotalElapsedTime.Text = "0.0";
                 LabelAvgNTTime.Text = "0.0";
@@ -200,7 +234,8 @@ namespace Process_Scheduling_Simulator
                 string selectedAlgorithm = ((ComboBoxItem)AlgorithmComboBox.SelectedItem)?.Content.ToString();
                 if (string.IsNullOrEmpty(selectedAlgorithm))
                 {
-                    MessageBox.Show("Please select a scheduling algorithm.");
+                    HandyControl.Controls.Growl.Warning("스케줄링 알고리즘을 선택해주세요.");
+                    (sender as Button).IsEnabled = true;
                     return;
                 }
 
@@ -208,7 +243,8 @@ namespace Process_Scheduling_Simulator
                 List<Process> processesToSchedule = ProcessList.ToList(); // 복사본 사용
                 if (!processesToSchedule.Any())
                 {
-                    MessageBox.Show("Please add processes to schedule.");
+                    HandyControl.Controls.Growl.Warning("프로세스를 추가해주세요.");
+                    (sender as Button).IsEnabled = true;
                     return;
                 }
 
@@ -219,13 +255,15 @@ namespace Process_Scheduling_Simulator
                 if (!int.TryParse(PcoreCountTextBox.Text, out numPcores) || numPcores < 0 ||
                     !int.TryParse(EcoreCountTextBox.Text, out numEcores) || numEcores < 0)
                 {
-                    MessageBox.Show("Invalid P-core or E-core count. Please enter non-negative integers.");
+                    HandyControl.Controls.Growl.Error("잘못된 코어 설정입니다. 코어 설정을 확인해주세요.");
+                    (sender as Button).IsEnabled = true;
                     return;
                 }
                 int totalProcessors = numPcores + numEcores;
                 if (totalProcessors <= 0)
                 {
-                    MessageBox.Show("Total number of processors must be greater than zero.");
+                    HandyControl.Controls.Growl.Error("코어가 최소 한개는 필요합니다");
+                    (sender as Button).IsEnabled = true;
                     return;
                 }
 
@@ -264,32 +302,38 @@ namespace Process_Scheduling_Simulator
                     case "HRRN":
                         scheduler = new HRRNScheduler(processesToSchedule, processors);
                         break;
-                    // case "FCFS":
-                    //     scheduler = new FCFSScheduler(processesToSchedule, processors);
-                    //     break;
-                    // case "RR":
-                    //     int timeQuantum;
-                    //     if(!int.TryParse(TimeQuantumTextBox.Text, out timeQuantum) || timeQuantum <= 0) {
-                    //         MessageBox.Show("Invalid Time Quantum for RR."); return;
-                    //     }
-                    //     scheduler = new RRScheduler(processesToSchedule, processors, timeQuantum);
-                    //     break;
-                    // ... 다른 알고리즘 케이스 추가 ...
-                    case "FCFS": // 예시 추가
+                    case "FCFS":
+                        scheduler = new FCFSScheduler(processesToSchedule, processors);
+                        break;
                     case "SPN":
+                        scheduler = new SPNScheduler(processesToSchedule, processors);
+                        break;
                     case "SRTN":
+                        scheduler = new SRTNScheduler(processesToSchedule, processors);
+                        break;
                     case "RR":
-                        MessageBox.Show($"Algorithm '{selectedAlgorithm}' is selected but not implemented in this example.");
-                        // 다른 스케줄러 구현 후 주석 해제
-                        return; // 임시로 종료
+                        int quantum = 0;
+                        if (!int.TryParse(TimeQuantumTextBox.Text, out quantum) || quantum <= 0)
+                        {
+                            HandyControl.Controls.Growl.Error("잘못된 Time Quantum 설정입니다.");
+                            (sender as Button).IsEnabled = true;
+                            return;
+                        }
+                        scheduler = new RRScheduler(processesToSchedule, processors, quantum);
+                        break;
+                    case "오!운영식 방법":
+                        scheduler = new OriginalScheduler(processesToSchedule, processors);
+                        break;
                     default:
-                        MessageBox.Show($"Selected algorithm '{selectedAlgorithm}' is not recognized or implemented.");
+                        HandyControl.Controls.Growl.Error($" '{selectedAlgorithm}' 알고리즘은 인식되지 않습니다.");
+                        (sender as Button).IsEnabled = true;
                         return;
                 }
                 Console.WriteLine($"Scheduler created for algorithm: {selectedAlgorithm}");
 
 
                 // --- 6. 시뮬레이션 실행 ---
+                schedulerStarted = true; // 스케줄러 시작 플래그 설정
                 Console.WriteLine("Starting simulation...");
                 await scheduler.Schedule(); // 여기가 핵심! 시뮬레이션 루프 실행
                 Console.WriteLine("Simulation finished.");
@@ -300,7 +344,8 @@ namespace Process_Scheduling_Simulator
                 ResultsDataGrid.ItemsSource = scheduler.CompletedProcesses;
 
                 // 요약 정보 업데이트
-                LabelTotalPower.Text = $"{scheduler.TotalPowerConsumption:F1}";
+                LabelPcorePower.Text = $"{scheduler.TotalPCorePower:F1}";
+                LabelEcorePower.Text = $"{scheduler.TotalECorePower:F1}";
                 LabelTotalElapsedTime.Text = $"{scheduler.CurrentTime}";
 
                 // 평균값 계산 및 표시
@@ -315,6 +360,8 @@ namespace Process_Scheduling_Simulator
                 }
                 HandyControl.Controls.Growl.Success($"{selectedAlgorithm} 시뮬레이션이 성공적으로 종료되었습니다."); // 사용자 알림
 
+                Button btn = sender as Button;
+                btn.Content = "시뮬레이션 재설정";
 
             }
             catch (Exception ex)
@@ -322,6 +369,9 @@ namespace Process_Scheduling_Simulator
                 // 오류 처리
                 HandyControl.Controls.Growl.Error($"시뮬레이션 중 오류가 발생했습니다.: {ex.Message}\n\n{ex.StackTrace}");
                 Console.WriteLine($"!!! Simulation Error: {ex}");
+            }finally
+                {
+                (sender as Button).IsEnabled = true;
             }
         }
 
@@ -350,6 +400,31 @@ namespace Process_Scheduling_Simulator
         }
 
         private int _nextColorIndex = 0;
+
+        private void ClearProcessClicked(object sender, RoutedEventArgs e)
+        {
+            ProcessList.Clear();
+        }
+
+        private void AddRandomProcessClicked(object sender, RoutedEventArgs e)
+        {
+            Random rand = new Random();
+            int arrivalTime = rand.Next(0, 30);
+            int burstTime = rand.Next(1, 10);
+            ProcessList.Add(new Process($"P{ProcessList.Count + 1:00}", arrivalTime, burstTime, GetNextProcessColor()));
+        }
+
+        private void AddProcessClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ProcessList.Add(new Process($"P{ProcessList.Count + 1:00}", int.Parse(TextBox_ArrivalTime.Text), int.Parse(TextBox_BurstTime.Text), GetNextProcessColor()));
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($"프로세스 추가 중 오류 발생 : {ex.Message}\n\n{ex.StackTrace}");
+            }
+        }
 
         /* Gantt Chart Implementation */
         // --- 상수 정의 ---
@@ -454,6 +529,7 @@ namespace Process_Scheduling_Simulator
         /// <param name="barColor">바의 배경색</param>
         public void DrawGanttBar(double startTime, double endTime, int processorIndex, string processName, Brush barColor)
         {
+            ScrollViewerMain.ScrollToHorizontalOffset(ScrollViewerMain.ExtentWidth - ScrollViewerMain.ViewportWidth);
             if (processorIndex < 0 || processorIndex >= _processorLabels.Count)
             {
                 // 유효하지 않은 프로세서 인덱스 처리 (예: 오류 로깅 또는 무시)
@@ -511,7 +587,7 @@ namespace Process_Scheduling_Simulator
 
             // 메인 캔버스 크기 업데이트
             UpdateMainCanvasSize();
-            ScrollViewerMain.ScrollToHorizontalOffset(left); // 스크롤 위치 조정
+             // 스크롤 위치 조정
         }
 
         // --- (3) 차트 청소 메서드 ---
