@@ -491,6 +491,7 @@ namespace Process_Scheduling_Simulator
 
             // 메인 캔버스 크기 업데이트
             UpdateMainCanvasSize();
+            ScrollViewerMain.ScrollToHorizontalOffset(left); // 스크롤 위치 조정
         }
 
         // --- (3) 차트 청소 메서드 ---
