@@ -20,64 +20,79 @@ namespace Process_Scheduling_Simulator
 
     public class Process : INotifyPropertyChanged
     {
+        // --- 기존 속성들 ---
+        private string _name;
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; OnPropertyChanged("Name"); }
+        }
+
         private int _arrivalTime;
         public int ArrivalTime
         {
             get { return _arrivalTime; }
-            set
-            {
-                _arrivalTime = value;
-                OnPropertyChanged("ArrivalTime");
-            }
+            set { _arrivalTime = value; OnPropertyChanged("ArrivalTime"); }
         }
+
         private int _burstTime;
-        public int BurstTime
+        public int BurstTime // 초기 총 작업량
         {
             get { return _burstTime; }
-            set
-            {
-                _burstTime = value;
-                OnPropertyChanged("BurstTime");
-            }
+            set { _burstTime = value; OnPropertyChanged("BurstTime"); }
         }
+
+        private double _remainingBurstTime; // 남은 작업량 (double로 변경하여 P코어 처리 반영)
+        public double RemainingBurstTime
+        {
+            get { return _remainingBurstTime; }
+            set { _remainingBurstTime = value; OnPropertyChanged("RemainingBurstTime"); }
+        }
+
         private int waitingTime;
         public int WaitingTime
         {
             get { return waitingTime; }
-            set
-            {
-                waitingTime = value;
-                OnPropertyChanged("WaitingTime");
-            }
+            set { waitingTime = value; OnPropertyChanged("WaitingTime"); }
         }
+
         private int _turnaroundTime;
         public int TurnaroundTime
         {
             get { return _turnaroundTime; }
-            set
-            {
-                _turnaroundTime = value;
-                OnPropertyChanged("TurnaroundTime");
-            }
+            set { _turnaroundTime = value; OnPropertyChanged("TurnaroundTime"); }
         }
-        private int _normalizedTTime;
-        public int NormalizedTTime
+
+        private double _normalizedTTime; // 정규화된 TT는 소수점이 나올 수 있음
+        public double NormalizedTTime
         {
             get { return _normalizedTTime; }
-            set
-            {
-                _normalizedTTime = value;
-                OnPropertyChanged("NormalizedTTime");
-            }
+            set { _normalizedTTime = value; OnPropertyChanged("NormalizedTTime"); }
         }
 
+        // --- INotifyPropertyChanged 구현 ---
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        // --- 생성자 (예시) ---
+        public Process(string name, int arrivalTime, int burstTime)
+        {
+            Name = name; // 이름 설정
+            ArrivalTime = arrivalTime;
+            BurstTime = burstTime;
+            RemainingBurstTime = burstTime; // 초기에는 남은 시간이 총 Burst Time과 같음
+            WaitingTime = 0;
+            TurnaroundTime = 0;
+            NormalizedTTime = 0;
+        }
+
+        // 기본 생성자 (필요시)
+        public Process() { }
     }
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -92,9 +107,9 @@ namespace Process_Scheduling_Simulator
             this.Opacity = 0;
             ProcessList = new ObservableCollection<Process>()
             {
-                new Process { ArrivalTime = 0, BurstTime = 3 },
-                new Process { ArrivalTime = 1, BurstTime = 5 },
-                new Process { ArrivalTime = 2, BurstTime = 2 }
+                new("P1", 0, 3), // 이름 부여
+                new("P2", 1, 5),
+                new("P3", 2, 2)
             };
 
             DataContext = this;
