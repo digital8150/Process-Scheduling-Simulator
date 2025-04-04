@@ -70,7 +70,7 @@
                     <Border.Effect>
                         <DropShadowEffect Opacity="0.5" ShadowDepth="0" BlurRadius="5"/>
                     </Border.Effect>
-                    <TextBlock Text="Processor / Time" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" FontFamily="/Resources/#Pretendard Variable"/>
+                    <TextBlock Text="Processor / Time" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
                 </Border>
 
             </Grid>
@@ -166,7 +166,7 @@
                     </Grid>
                     
                     <!--Cell-->
-                    <DataGrid Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsEnabled="False">
+                    <DataGrid Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsManipulationEnabled="False">
                         
                        
                     </DataGrid>

@@ -122,7 +122,18 @@ namespace Process_Scheduling_Simulator
             {
                 new("P1", 0, 3, Brushes.Gray), // 이름 부여
                 new("P2", 1, 5, Brushes.Gray),
-                new("P3", 2, 2, Brushes.Gray)
+                new("P3", 2, 2, Brushes.Gray),
+                new("P4", 2, 7, Brushes.Gray),
+                new("P5", 3, 3, Brushes.Gray),
+                new("P6", 4, 2, Brushes.Gray),
+                new("P7", 5, 5, Brushes.Gray),
+                new("P8", 6, 5, Brushes.Gray),
+                new("P9", 7, 4, Brushes.Gray),
+                new("P10",7, 6, Brushes.Gray),
+                new("P11", 8, 3, Brushes.Gray),
+                new("P12", 9, 4, Brushes.Gray),
+                new("P13", 9, 3, Brushes.Gray),
+                new("P14", 10, 2, Brushes.Gray)
             };
 
             DataContext = this;
@@ -131,13 +142,15 @@ namespace Process_Scheduling_Simulator
 
         private async void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
-            await Task.Delay(100);
+            await Task.Delay(50);
             AnimationController.BeginAnimation(this, OpacityProperty, duration: 0.7, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(this, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase());
         }
 
         private async void AppCloseClickedEventHandler(object sender, RoutedEventArgs e)
         {
             AnimationController.BeginAnimation(this, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(this, HeightProperty, (int)this.ActualHeight, 0, 0.5, easingFunction: new CubicEase());
             await Task.Delay(500);
             this.Close();
         }
@@ -193,12 +206,6 @@ namespace Process_Scheduling_Simulator
                 if (totalProcessors <= 0)
                 {
                     MessageBox.Show("Total number of processors must be greater than zero.");
-                    return;
-                }
-                // PDF 제약조건 확인 [Source 6]
-                if (processesToSchedule.Count > 15 || totalProcessors > 4)
-                {
-                    MessageBox.Show($"Input Error: Max 15 processes and Max 4 processors allowed.\n(Current: {processesToSchedule.Count} processes, {totalProcessors} processors)");
                     return;
                 }
 
@@ -286,7 +293,7 @@ namespace Process_Scheduling_Simulator
                 {
                     Console.WriteLine("No processes were completed during the simulation.");
                 }
-                MessageBox.Show($"{selectedAlgorithm} simulation completed successfully!"); // 사용자 알림
+                HandyControl.Controls.Growl.Success($"{selectedAlgorithm} 시뮬레이션이 성공적으로 종료되었습니다."); // 사용자 알림
 
 
             }
@@ -326,8 +333,8 @@ namespace Process_Scheduling_Simulator
 
         /* Gantt Chart Implementation */
         // --- 상수 정의 ---
-        private const double ProcessorRowHeight = 30.0; // 각 프로세서 행의 높이
-        private const double TimeUnitWidth = 40.0;      // 시간 단위당 너비 (픽셀)
+        private const double ProcessorRowHeight = 50.0; // 각 프로세서 행의 높이
+        private const double TimeUnitWidth = 75.0;      // 시간 단위당 너비 (픽셀)
         private const double TimeLabelOffsetY = 10.0;   // 타임 라벨의 세로 위치 오프셋
         private const double GanttBarMarginY = 2.0;     // 간트 바의 상하 마진
 
@@ -358,7 +365,7 @@ namespace Process_Scheduling_Simulator
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Margin = new Thickness(5, 0, 0, 0), // 약간의 왼쪽 여백
-                Tag = _processorLabels.Count // 인덱스를 Tag에 저장 (나중에 식별용)
+                Tag = _processorLabels.Count, // 인덱스를 Tag에 저장 (나중에 식별용)
             };
 
             ProcessorStackPanel.Children.Add(textBlock);
