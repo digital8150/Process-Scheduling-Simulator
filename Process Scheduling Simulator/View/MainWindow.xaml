@@ -50,20 +50,21 @@
                 <hc:ScrollViewer Name="ScrollViewerTimebar" Grid.Column="1"
                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
                          ScrollChanged="TimebarScrollChanged">
-                    <Canvas Name="TimebarCanvas" Height="50" Background="LightGray" HorizontalAlignment="Left"/>
+                    <Canvas Name="TimebarCanvas" Height="50" Background="LightGray" HorizontalAlignment="Left" Margin="5,0"/>
                 </hc:ScrollViewer>
 
                 <hc:ScrollViewer Name="ScrollViewerProcessor" Grid.Row="1"
                          VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled"
                          ScrollChanged="ProcessorScrollChanged">
-                    <StackPanel Name="ProcessorStackPanel" Orientation="Vertical"/>
+                    <StackPanel Name="ProcessorStackPanel" Orientation="Vertical" Margin="5,0">
+                    </StackPanel>
                 </hc:ScrollViewer>
 
                 <hc:ScrollViewer Name="ScrollViewerMain" Grid.Row="1" Grid.Column="1"
                          ScrollChanged="MainScrollChainged" IsInertiaEnabled="True"
                          HorizontalScrollBarVisibility="Visible"
                          VerticalScrollBarVisibility="Visible">
-                    <Canvas Name="MainCanvas" Background="WhiteSmoke" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Canvas Name="MainCanvas" Background="WhiteSmoke" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,0"/>
                 </hc:ScrollViewer>
 
                 <Border Grid.Row="0" Margin="5" Grid.Column="0" Background="#fcfcfc" CornerRadius="15">

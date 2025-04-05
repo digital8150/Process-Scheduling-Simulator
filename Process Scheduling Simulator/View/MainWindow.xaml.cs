@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +9,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -219,6 +221,8 @@ namespace Process_Scheduling_Simulator
             AssignColorsToProcessList();
             try // 오류 발생 가능성이 있으므로 try-catch 블록 사용
             {
+                if (int.Parse(VisDelayTextBox.Text) < 50) VisDelayTextBox.Text = "50";
+
                 // --- 1. 이전 결과 초기화 ---
                 // Gantt 차트 초기화 (MainWindow에 구현된 ClearChart 메서드 사용)
                 this.ClearChart(); // 'this'는 MainWindow 인스턴스
@@ -364,6 +368,10 @@ namespace Process_Scheduling_Simulator
                 btn.Content = "시뮬레이션 재설정";
 
             }
+            catch(FormatException ex)
+            {
+                HandyControl.Controls.Growl.Warning("입력 필드에 올바른 숫자를 입력해주세요.");
+            }
             catch (Exception ex)
             {
                 // 오류 처리
@@ -404,6 +412,7 @@ namespace Process_Scheduling_Simulator
         private void ClearProcessClicked(object sender, RoutedEventArgs e)
         {
             ProcessList.Clear();
+            ResultsDataGrid.ItemsSource = this.ProcessList; // 결과 그리드 초기화
         }
 
         private void AddRandomProcessClicked(object sender, RoutedEventArgs e)
@@ -412,6 +421,7 @@ namespace Process_Scheduling_Simulator
             int arrivalTime = rand.Next(0, 30);
             int burstTime = rand.Next(1, 10);
             ProcessList.Add(new Process($"P{ProcessList.Count + 1:00}", arrivalTime, burstTime, GetNextProcessColor()));
+            ResultsDataGrid.ItemsSource = this.ProcessList; // 결과 그리드 초기화
         }
 
         private void AddProcessClicked(object sender, RoutedEventArgs e)
@@ -419,6 +429,10 @@ namespace Process_Scheduling_Simulator
             try
             {
                 ProcessList.Add(new Process($"P{ProcessList.Count + 1:00}", int.Parse(TextBox_ArrivalTime.Text), int.Parse(TextBox_BurstTime.Text), GetNextProcessColor()));
+                ResultsDataGrid.ItemsSource = this.ProcessList; // 결과 그리드 초기화
+            }
+            catch (FormatException ex) {
+                HandyControl.Controls.Growl.Warning($"숫자를 입력해주세요.");
             }
             catch (Exception ex)
             {
@@ -455,11 +469,10 @@ namespace Process_Scheduling_Simulator
         {
             var textBlock = new TextBlock
             {
-                Text = processorName,
+                Text = $"\n{processorName}",
                 Height = ProcessorRowHeight,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Margin = new Thickness(5, 0, 0, 0), // 약간의 왼쪽 여백
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 0, 15, 0), // 약간의 왼쪽 여백
                 Tag = _processorLabels.Count, // 인덱스를 Tag에 저장 (나중에 식별용)
             };
 
@@ -556,18 +569,21 @@ namespace Process_Scheduling_Simulator
                 Background = barColor ?? Brushes.SkyBlue, // 기본 색상 지정
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
-                ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}"
-            };
+                ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}",
+
+        }; 
 
             // 바 안에 프로세스 이름 표시 (옵션)
             var textBlock = new TextBlock
             {
                 Text = processName,
-                Foreground = Brushes.Black,
+                Foreground = Brushes.White,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 10,
-                TextTrimming = TextTrimming.CharacterEllipsis // 긴 이름 자르기
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                TextTrimming = TextTrimming.CharacterEllipsis, // 긴 이름 자르기
+                Effect = new DropShadowEffect { ShadowDepth = 0, Opacity=1, BlurRadius=3}
             };
             border.Child = textBlock;
 

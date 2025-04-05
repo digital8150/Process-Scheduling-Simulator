@@ -87,15 +87,16 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
         {
             Process bestProcess = null;
             double highestRatio = -1.0;
-
+            Console.WriteLine($"CalculatingBestProcess in {currentTime}");
             foreach (var readyProcess in readyQueue.Where(rp => !assignedInThisTick.Contains(rp)).ToList())
             {
+                
                 if (readyProcess.BurstTime <= 0) continue;
                 int waitingTime = currentTime - readyProcess.ArrivalTime;
                 // 응답률 계산 시 waitingTime이 음수가 되지 않도록 보장 (ArrivalTime > currentTime 인 경우는 없어야 함)
                 waitingTime = Math.Max(0, waitingTime);
                 double responseRatio = (double)(waitingTime + readyProcess.BurstTime) / readyProcess.BurstTime;
-
+                Console.WriteLine($"Process : {readyProcess.Name}\tWT : {waitingTime}\tBT : {readyProcess.BurstTime}\tresponseRatio : {responseRatio}");
                 if (responseRatio > highestRatio)
                 {
                     highestRatio = responseRatio;
@@ -106,6 +107,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     bestProcess = readyProcess; // Tie-breaking: FCFS
                 }
             }
+            Console.WriteLine($"Se;ected Process : {bestProcess.Name}");
             return bestProcess;
         }
 
