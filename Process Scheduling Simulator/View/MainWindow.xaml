@@ -139,7 +139,7 @@
                                         <fa:FontAwesome Icon="Solid_ClockRotateLeft"/> 스케줄링 알고리즘 <LineBreak/>
                                         <Run FontSize="14" FontWeight="Medium">스케줄링 알고리즘을 선택합니다.</Run>
                                         </TextBlock>
-                                        <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" SelectedIndex="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0" SelectionChanged="AlgorithmSlectionChangedHandler">
+                                        <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" SelectedIndex="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0" SelectionChanged="AlgorithmSelectionChangedHandler">
                                             <ComboBoxItem Content="FCFS"/>
                                             <ComboBoxItem Content="RR"/>
                                             <ComboBoxItem Content="SPN"/>

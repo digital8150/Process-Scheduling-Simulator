@@ -782,7 +782,7 @@ namespace Process_Scheduling_Simulator
             this.WindowState = WindowState.Minimized;
         }
 
-        private void AlgorithmSlectionChangedHandler(object sender, SelectionChangedEventArgs e)
+        private void AlgorithmSelectionChangedHandler(object sender, SelectionChangedEventArgs e)
         {
 
 
