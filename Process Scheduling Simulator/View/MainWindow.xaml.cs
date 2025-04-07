@@ -570,8 +570,9 @@ namespace Process_Scheduling_Simulator
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
                 ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}",
+                Opacity = 0
 
-        }; 
+            }; 
 
             // 바 안에 프로세스 이름 표시 (옵션)
             var textBlock = new TextBlock
@@ -593,6 +594,7 @@ namespace Process_Scheduling_Simulator
 
             MainCanvas.Children.Add(border);
             _ganttBars.Add(border);
+            AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
 
             // 최대 시간 업데이트 및 타임바 갱신
             if (endTime > _maxTime)
@@ -785,6 +787,26 @@ namespace Process_Scheduling_Simulator
             this.WindowState = WindowState.Minimized;
         }
 
+        private void AlgorithmSlectionChangedHandler(object sender, SelectionChangedEventArgs e)
+        {
 
+
+            if ((sender as ComboBox).SelectedItem is ComboBoxItem selectedItem)
+            {
+                string selectedAlgorithm = selectedItem.Content.ToString();
+                if(TimeQuantumTextBox is null)
+                {
+                    return;
+                }
+                if (selectedAlgorithm == "RR")
+                {
+                    Grid_RR_TimeQuantum.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Grid_RR_TimeQuantum.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
     }
 }

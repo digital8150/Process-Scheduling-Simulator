@@ -125,7 +125,7 @@
                         </Grid>
                         
                         <!-- Settings -->
-                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Collapsed">
+                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Visible">
                             <StackPanel Margin="15">
                                 <Grid Height="75" Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
@@ -136,7 +136,7 @@
                                         <fa:FontAwesome Icon="Solid_ClockRotateLeft"/> 스케줄링 알고리즘 <LineBreak/>
                                         <Run FontSize="14" FontWeight="Medium">스케줄링 알고리즘을 선택합니다.</Run>
                                     </TextBlock>
-                                    <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" SelectedIndex="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0">
+                                    <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" SelectedIndex="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0" SelectionChanged="AlgorithmSlectionChangedHandler">
                                         <ComboBoxItem Content="FCFS"/>
                                         <ComboBoxItem Content="RR"/>
                                         <ComboBoxItem Content="SPN"/>
@@ -146,7 +146,7 @@
                                     </hc:ComboBox>
                                 </Grid>
                                 
-                                <Grid Height="75" Margin="0,0,0,5">
+                                <Grid Name="Grid_RR_TimeQuantum" Height="75" Margin="0,0,0,5" Visibility="Collapsed">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
                                         <ColumnDefinition/>
@@ -210,7 +210,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Visible">
+                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Hidden">
                             <StackPanel Margin="15">
                                 <Grid Height="75" Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
