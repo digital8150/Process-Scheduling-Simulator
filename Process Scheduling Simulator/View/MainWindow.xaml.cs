@@ -214,15 +214,6 @@ namespace Process_Scheduling_Simulator
         private async void SchedulerStartClickedHandler(object sender, RoutedEventArgs e)
         {
             (sender as Button).IsEnabled = false; // 버튼 비활성화
-            if (schedulerStarted)
-            {
-                schedulerStarted = false; // 스케줄러가 이미 시작된 경우
-                ResultsDataGrid.ItemsSource = this.ProcessList; // 결과 그리드 초기화
-                (sender as Button).Content = "시뮬레이션 시작"; // 버튼 텍스트 변경
-                (sender as Button).IsEnabled = true;
-                ClearChart(); // Gantt 차트 초기화
-                return;
-            }
             AssignColorsToProcessList();
             try // 오류 발생 가능성이 있으므로 try-catch 블록 사용
             {
@@ -370,7 +361,6 @@ namespace Process_Scheduling_Simulator
                 HandyControl.Controls.Growl.Success($"{selectedAlgorithm} 시뮬레이션이 성공적으로 종료되었습니다."); // 사용자 알림
 
                 Button btn = sender as Button;
-                btn.Content = "시뮬레이션 재설정";
 
             }
             catch(FormatException ex)
