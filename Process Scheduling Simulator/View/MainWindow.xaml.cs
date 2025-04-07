@@ -186,15 +186,20 @@ namespace Process_Scheduling_Simulator
             ClearChart();
             ViewChanger_hideAll();
             ViewChanger_SchedulingSettingsClicked(sender, e);
-            await Task.Delay(50);
-            AnimationController.BeginAnimation(this, OpacityProperty, duration: 0.7, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(this, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase());
+            await Task.Delay(100);
+            AnimationController.BeginAnimation(this, OpacityProperty, duration: 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, WidthProperty, 0, 1650, 0.5, easingFunction: new CubicEase());
+            await Task.Delay(400);
+            BorderMain.BeginAnimation(HeightProperty, null);
+            BorderMain.BeginAnimation(WidthProperty, null);
         }
 
         private async void AppCloseClickedEventHandler(object sender, RoutedEventArgs e)
         {
             AnimationController.BeginAnimation(this, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(this, HeightProperty, (int)this.ActualHeight, 0, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, WidthProperty, BorderMain.ActualWidth, 0, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, HeightProperty, BorderMain.ActualHeight, 0, 0.5, easingFunction: new CubicEase());
             await Task.Delay(500);
             this.Close();
         }
