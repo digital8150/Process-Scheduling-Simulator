@@ -39,7 +39,7 @@
             </Grid>
             
             <!--Gantt-->
-            <Grid Grid.Row="1" Margin="15">
+            <Grid Name="Grid_Gantt" Grid.Row="1" Margin="15">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="*"/>
@@ -79,7 +79,7 @@
             </Grid>
 
             <!--Settings & Stats-->
-            <Grid Grid.Row="2">
+            <Grid Name="Grid_SettingsStats" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
