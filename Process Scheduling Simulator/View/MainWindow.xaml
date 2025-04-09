@@ -127,7 +127,7 @@
                         </Grid>
                         
                         <!-- Settings -->
-                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Visible">
+                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Hidden">
                             <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
                                 <StackPanel>
                                     <Grid Height="75" Margin="0,0,0,5">
@@ -218,7 +218,7 @@
 
                         </Grid>
 
-                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Hidden">
+                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Visible">
                             <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
                                 <StackPanel>
                                     <Grid Height="75" Margin="0,0,0,5">
@@ -277,6 +277,38 @@
                                                 프로세스 추가
                                             </Button>
 
+
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                            <fa:FontAwesome Icon="Solid_WandMagicSparkles"/> 프로세스 내보내기/가져오기<LineBreak/>
+                                            <Run FontSize="16" FontWeight="Medium">현재 프로세스 목록을 json 파일로 내보내거나 json 파일로 부터 프로세스 목록을 가져옵니다.</Run>            
+                                        </TextBlock>
+
+                                        <Grid Grid.Column="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button Grid.Column="0" Margin="15" HorizontalAlignment="Stretch" Click="ImportProcessClicked">
+                                                <TextBlock>
+                                                    <fa:FontAwesome Icon="Solid_FileImport"/> 프로세스 가져오기
+                                                </TextBlock>
+                                            </Button>
+
+                                            <Button Grid.Column="1" Margin="15" HorizontalAlignment="Stretch" Click="ExportProcessClicked" Style="{StaticResource ButtonPrimary}">
+                                                <TextBlock>
+                                                    <fa:FontAwesome Icon="Solid_FileExport"/> 프로세스 내보내기
+                                                </TextBlock>
+                                            </Button>
 
                                         </Grid>
 

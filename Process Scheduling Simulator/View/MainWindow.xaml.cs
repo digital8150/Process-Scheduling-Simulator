@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -73,7 +76,9 @@ namespace Process_Scheduling_Simulator
             set { _normalizedTTime = value; OnPropertyChanged("NormalizedTTime"); }
         }
 
+        
         private Brush _processColor;
+        [JsonIgnore]
         public Brush ProcessColor
         {
             get { return _processColor ?? Brushes.Gray; } // 기본값으로 회색 반환
@@ -202,7 +207,7 @@ namespace Process_Scheduling_Simulator
 
             AnimationController.BeginAnimation(Grid_Gantt, OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new SineEase());
             await Task.Delay(1);
-            DrawGanttBar(0, 0, 0, "P1", Brushes.Gray); // 초기화
+            //DrawGanttBar(0, 0, 0, "P1", Brushes.Gray); // 초기화
             ClearChart();
             await Task.Delay(249);
             AnimationController.BeginAnimation(Grid_SettingsStats, OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new SineEase());
@@ -454,6 +459,92 @@ namespace Process_Scheduling_Simulator
             catch (Exception ex)
             {
                 HandyControl.Controls.Growl.Error($"프로세스 추가 중 오류 발생 : {ex.Message}\n\n{ex.StackTrace}");
+            }
+        }
+
+        private void ImportProcessClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 파일 열기 대화 상자 표시
+                Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                    DefaultExt = "json"
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    // 선택한 파일에서 JSON 문자열 읽기
+                    string json = File.ReadAllText(openFileDialog.FileName);
+
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true, // 대소문자 구분 없이 속성 이름 매칭
+                        ReferenceHandler = ReferenceHandler.Preserve, // 순환 참조 처리
+                    };
+
+                    // JSON 문자열을 ObservableCollection<Process>로 역직렬화
+                    var importedProcesses = JsonSerializer.Deserialize<ObservableCollection<Process>>(json, options);
+
+                    if (importedProcesses != null)
+                    {
+                        // 기존 ProcessList를 새로 불러온 데이터로 교체
+                        ProcessList.Clear();
+                        foreach (var process in importedProcesses)
+                        {
+                            ProcessList.Add(process);
+                        }
+
+                        // 결과 그리드 업데이트
+                        ResultsDataGrid.ItemsSource = ProcessList;
+
+                        HandyControl.Controls.Growl.Success("프로세스 목록이 성공적으로 불러와졌습니다.");
+                    }
+                    else
+                    {
+                        HandyControl.Controls.Growl.Warning("JSON 파일에서 데이터를 읽을 수 없습니다.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($"불러오기 중 오류 발생: {ex.Message}");
+            }
+        }
+
+        private void ExportProcessClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // JSON 직렬화 옵션 설정
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true, // 보기 좋게 들여쓰기
+                    ReferenceHandler = ReferenceHandler.Preserve, // 순환 참조 처리
+                };
+
+                // ProcessList를 JSON 문자열로 변환
+                string json = JsonSerializer.Serialize(ProcessList, options);
+
+                // 파일 저장 대화 상자 표시
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                    DefaultExt = "json",
+                    FileName = "ProcessList.json"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    // 선택한 경로에 JSON 파일 저장
+                    File.WriteAllText(saveFileDialog.FileName, json);
+                    HandyControl.Controls.Growl.Success("프로세스 목록이 성공적으로 내보내졌습니다.");
+                }
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($"내보내기 중 오류 발생: {ex.Message}");
             }
         }
 
@@ -825,5 +916,7 @@ namespace Process_Scheduling_Simulator
                 }
             }
         }
+
+
     }
 }
