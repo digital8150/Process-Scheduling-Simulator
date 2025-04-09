@@ -131,6 +131,32 @@ namespace Process_Scheduling_Simulator
         public MainWindow()
         {
             InitializeComponent();
+
+            BorderMain.Opacity = 0;
+            Grid_Gantt.Opacity = 0;
+            Grid_SettingsStats.Opacity = 0;
+            
+            Grid_Gantt.Visibility = Visibility.Collapsed;
+            Grid_SettingsStats.Visibility = Visibility.Collapsed;
+            ProcessList = new ObservableCollection<Process>()
+            {
+                new("P01", 0, 3, Brushes.Gray), // 이름 부여
+                new("P02", 1, 5, Brushes.Gray),
+                new("P03", 2, 2, Brushes.Gray),
+                new("P04", 2, 7, Brushes.Gray),
+                new("P05", 3, 3, Brushes.Gray),
+                new("P06", 4, 2, Brushes.Gray),
+                new("P07", 5, 5, Brushes.Gray),
+                new("P08", 6, 5, Brushes.Gray),
+                new("P09", 7, 4, Brushes.Gray),
+                new("P10",7, 6, Brushes.Gray),
+                new("P11", 8, 3, Brushes.Gray),
+                new("P12", 9, 4, Brushes.Gray),
+                new("P13", 9, 3, Brushes.Gray),
+                new("P14", 10, 2, Brushes.Gray)
+            };
+
+            DataContext = this;
         }
 
         private void ViewChanger_hideAll()
@@ -160,44 +186,29 @@ namespace Process_Scheduling_Simulator
 
         private async void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
-            BorderMain.Opacity = 0;
-            Grid_Gantt.Opacity = 0;
-            Grid_SettingsStats.Opacity = 0;
-            ProcessList = new ObservableCollection<Process>()
-            {
-                new("P01", 0, 3, Brushes.Gray), // 이름 부여
-                new("P02", 1, 5, Brushes.Gray),
-                new("P03", 2, 2, Brushes.Gray),
-                new("P04", 2, 7, Brushes.Gray),
-                new("P05", 3, 3, Brushes.Gray),
-                new("P06", 4, 2, Brushes.Gray),
-                new("P07", 5, 5, Brushes.Gray),
-                new("P08", 6, 5, Brushes.Gray),
-                new("P09", 7, 4, Brushes.Gray),
-                new("P10",7, 6, Brushes.Gray),
-                new("P11", 8, 3, Brushes.Gray),
-                new("P12", 9, 4, Brushes.Gray),
-                new("P13", 9, 3, Brushes.Gray),
-                new("P14", 10, 2, Brushes.Gray)
-            };
 
-            DataContext = this;
             await Task.Delay(200);
             AnimationController.BeginAnimation(BorderMain, OpacityProperty, duration: 0.5, easingFunction: new CubicEase());
             AnimationController.BeginAnimation(BorderMain, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase(), easingMode: EasingMode.EaseOut);
             AnimationController.BeginAnimation(BorderMain, WidthProperty, 0, 1650, 0.5, easingFunction: new CubicEase(), easingMode: EasingMode.EaseOut);
             await Task.Delay(750);
-            DrawGanttBar(0, 0, 0, "P1", Brushes.Gray);
-            ClearChart();
+            BorderMain.BeginAnimation(HeightProperty, null);
+            BorderMain.BeginAnimation(WidthProperty, null);
+            Grid_Gantt.Visibility= Visibility.Visible;
+
+            Grid_SettingsStats.Visibility = Visibility.Visible;
             ViewChanger_hideAll();
             ViewChanger_SchedulingSettingsClicked(sender, e);
+
             AnimationController.BeginAnimation(Grid_Gantt, OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new SineEase());
-            await Task.Delay(250);
+            await Task.Delay(1);
+            DrawGanttBar(0, 0, 0, "P1", Brushes.Gray); // 초기화
+            ClearChart();
+            await Task.Delay(249);
             AnimationController.BeginAnimation(Grid_SettingsStats, OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new SineEase());
 
 
-            BorderMain.BeginAnimation(HeightProperty, null);
-            BorderMain.BeginAnimation(WidthProperty, null);
+
         }
 
         private async void AppCloseClickedEventHandler(object sender, RoutedEventArgs e)
@@ -206,6 +217,8 @@ namespace Process_Scheduling_Simulator
             await Task.Delay(250);
             AnimationController.BeginAnimation(Grid_SettingsStats, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
             await Task.Delay(500);
+            Grid_Gantt.Visibility = Visibility.Collapsed;
+            Grid_SettingsStats.Visibility = Visibility.Collapsed;
             AnimationController.BeginAnimation(BorderMain, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
             AnimationController.BeginAnimation(BorderMain, WidthProperty, BorderMain.ActualWidth, 0, 0.7, easingFunction: new CubicEase());
             AnimationController.BeginAnimation(BorderMain, HeightProperty, BorderMain.ActualHeight, 0, 0.7, easingFunction: new CubicEase());
