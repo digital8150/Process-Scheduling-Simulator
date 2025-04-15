@@ -24,6 +24,44 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 int.TryParse(Init.mainApplication.VisDelayTextBox.Text, out delay);
                 await Task.Delay(delay); // 시각화 지연시간 적용 - 이 코드는 공통으로 수정하지 말아주세요
 
+                // 도착한 프로세스를 readyQueue에 추가
+                while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
+                {
+                    var arrivedProcess = incomingProcesses.Dequeue();
+                    readyQueue.Add(arrivedProcess);
+                }
+
+                // 프로세서가 비어있는 경우에만 작업 할당
+                foreach (var processor in Processors)
+                {
+                    if (processor.IsIdle && readyQueue.Count > 0)
+                    {
+                        // SPN: 가장 짧은 서비스 시간을 가진 프로세스 선택
+                        var nextProcess = readyQueue.OrderBy(p => p.ServiceTime).First();
+
+                        readyQueue.Remove(nextProcess);
+                        processor.Assign(nextProcess, CurrentTime); // 시작 시간 설정됨
+                        RunningProcesses.Add(nextProcess);
+                    }
+                }
+
+                // 실행 중인 프로세스들 처리
+                foreach (var processor in Processors)
+                {
+                    if (!processor.IsIdle)
+                    {
+                        processor.Tick(); // 실행 시간 1만큼 증가
+
+                        var running = processor.CurrentProcess;
+                        if (running.RemainingTime <= 0)
+                        {
+                            processor.Release(); // 프로세서에서 제거
+                            running.EndTime = CurrentTime + 1;
+                            CompletedProcesses.Add(running);
+                            RunningProcesses.Remove(running);
+                        }
+                    }
+                }    
                 // TODO : 여기에 스케줄링 알고리즘을 작성하시면 됩니다.
                 // 예시 : 프로세스 도착 처리(레디큐에 삽입). 도착 시간으로 정렬한 프로세스 목록 incomingProcesses에서 currentTime보다 ArrivalTime이 작은 프로세스를 readyQueue에 추가하는 코드
                 /*
@@ -37,7 +75,6 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 //프로세스 할당
 
                 //프로세서 틱 처리 등
-
                 CurrentTime++;
             }
         }
