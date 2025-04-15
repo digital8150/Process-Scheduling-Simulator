@@ -12,6 +12,8 @@
         AllowsTransparency="True"
         Loaded="LoadedEventHandler"
         ResizeMode="CanResizeWithGrip"
+        MinWidth="1280"
+        MinHeight="720"
         Title="Process Scheduling Simulator" Height="900" Width="1620" Background="Transparent">
     <Border Name="BorderMain"  Background="#fafafa" CornerRadius="15">
         <Grid>
@@ -37,7 +39,7 @@
             </Grid>
             
             <!--Gantt-->
-            <Grid Grid.Row="1" Margin="15">
+            <Grid Name="Grid_Gantt" Grid.Row="1" Margin="15">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="*"/>
@@ -77,7 +79,7 @@
             </Grid>
 
             <!--Settings & Stats-->
-            <Grid Grid.Row="2">
+            <Grid Name="Grid_SettingsStats" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -125,155 +127,196 @@
                         </Grid>
                         
                         <!-- Settings -->
-                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Collapsed">
-                            <StackPanel Margin="15">
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_ClockRotateLeft"/> 스케줄링 알고리즘 <LineBreak/>
-                                        <Run FontSize="14" FontWeight="Medium">스케줄링 알고리즘을 선택합니다.</Run>
-                                    </TextBlock>
-                                    <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" SelectedIndex="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0">
-                                        <ComboBoxItem Content="FCFS"/>
-                                        <ComboBoxItem Content="RR"/>
-                                        <ComboBoxItem Content="SPN"/>
-                                        <ComboBoxItem Content="SRTN"/>
-                                        <ComboBoxItem Content="HRRN"/>
-                                        <ComboBoxItem Content="오!운영식 방법"/>
-                                    </hc:ComboBox>
-                                </Grid>
-                                
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_HourglassStart"/> Time Quantum <LineBreak/>
-                                        <Run FontSize="14" FontWeight="Medium">RR 스케줄러에서 사용할 δ를 지정해주세요.</Run>
-                                    </TextBlock>
-                                    <hc:TextBox Grid.Column="1" Name="TimeQuantumTextBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
-                                </Grid>
-                                
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_Spinner"/> 시각화 지연시간 <LineBreak/>
-                                        <Run FontSize="14" FontWeight="Medium">Tick 마다 대기할 지연시간을 입력해주세요.</Run>
-                                    </TextBlock>
-                                    <hc:TextBox Grid.Column="1" Name="VisDelayTextBox" Text="100" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
-                                </Grid>
-
-                            </StackPanel>
-                        </Grid>
-                        <Grid Grid.Row="1" Name="Grid_ProcessorSettings" Visibility="Hidden" >
-                            <StackPanel Margin="15">
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_BoltLightning"/> P Core 개수<LineBreak/>
-                                        <Run FontSize="16" FontWeight="Medium">성능 코어의 개수를 설정합니다.</Run>
-                                    </TextBlock>
-                                    <hc:TextBox Grid.Column="1" Name="PcoreCountTextBox" Text="1" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
-
-                                </Grid>
-
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_Leaf"/> E Core 개수<LineBreak/>
-                                        <Run FontSize="16" FontWeight="Medium">효율 코어의 개수를 설정합니다.</Run>
-                                    </TextBlock>
-                                    <hc:TextBox Grid.Column="1" Name="EcoreCountTextBox" Text="1" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
-
-                                </Grid>
-                                <TextBlock Margin="10" FontSize="16">
-                                    <fa:FontAwesome Icon="Regular_CircleQuestion"/> <Run FontWeight="SemiBold" FontSize="18">코어에 대한 정보</Run>
-                                    <LineBreak/>
-                                    P Core는 1초에 2의 일을 처리할 수 있으며 1초당 3W를 소모합니다. Idle 상태에서 시동 시 0.5W를 소모합니다.<LineBreak/>
-                                    E Core는 1초에 1의 일을 처리할 수 있으며 1초당 1W를 소모합니다. Idle 상태에서 시동 시 0.1W를 소모합니다.<LineBreak/>
-                                </TextBlock>
-
-
-                            </StackPanel>
-                        </Grid>
-
-                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Visible">
-                            <StackPanel Margin="15">
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_Trash"/> 프로세스 목록 비우기<LineBreak/>
-                                        <Run FontSize="16" FontWeight="Medium">프로세스 목록을 모두 비웁니다.</Run>
-                                    </TextBlock>
-
-                                    <Button Click="ClearProcessClicked" Grid.Column="1" Style="{StaticResource ButtonDanger}" Margin="15" HorizontalAlignment="Stretch">
-                                        프로세스 목록 비우기
-                                    </Button>
-                                    
-                                </Grid>
-
-                                <Grid Height="75" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_WandMagicSparkles"/> 랜덤 프로세스 추가하기<LineBreak/>
-                                        <Run FontSize="16" FontWeight="Medium">도착시간과 실행시간이 랜덤인 프로세스를 추가합니다</Run>
-                                    </TextBlock>
-
-                                    <Button Click="AddRandomProcessClicked" Grid.Column="1" Style="{StaticResource ButtonPrimary}" Margin="15" HorizontalAlignment="Stretch">
-                                        랜덤 프로세스 추가
-                                    </Button>
-
-                                </Grid>
-                                <Grid Height="100" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
-                                        <fa:FontAwesome Icon="Solid_UserAstronaut"/> 프로세스 추가하기<LineBreak/>
-                                        <Run FontSize="16" FontWeight="Medium">사용자 지정 프로세스를 추가합니다</Run>
-                                    </TextBlock>
-
-                                    <Grid Grid.Column="1">
+                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Hidden">
+                            <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
+                                <StackPanel>
+                                    <Grid Height="75" Margin="0,0,0,5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition/>
                                         </Grid.ColumnDefinitions>
-                                        <hc:TextBox Name="TextBox_ArrivalTime" VerticalAlignment="Top" Margin="15" hc:InfoElement.Placeholder="ArrivalTime">
-                                            
-                                        </hc:TextBox>
-                                        <hc:TextBox Name="TextBox_BurstTime" Grid.Column="1" VerticalAlignment="Top" Margin="15" hc:InfoElement.Placeholder="BurstTime">
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0" TextWrapping="WrapWithOverflow">
+                                        <fa:FontAwesome Icon="Solid_ClockRotateLeft"/> 스케줄링 알고리즘 <LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">스케줄링 알고리즘을 선택합니다.</Run>
+                                        </TextBlock>
+                                        <hc:ComboBox Grid.Column="1" Name="AlgorithmComboBox" SelectedIndex="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0" SelectionChanged="AlgorithmSelectionChangedHandler">
+                                            <ComboBoxItem Content="FCFS"/>
+                                            <ComboBoxItem Content="RR"/>
+                                            <ComboBoxItem Content="SPN"/>
+                                            <ComboBoxItem Content="SRTN"/>
+                                            <ComboBoxItem Content="HRRN"/>
+                                            <ComboBoxItem Content="오!운영식 방법"/>
+                                        </hc:ComboBox>
+                                    </Grid>
 
-                                        </hc:TextBox>
-                                        <Button Click="AddProcessClicked" Grid.ColumnSpan="2" Style="{StaticResource ButtonPrimary}" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-                                            프로세스 추가
-                                        </Button>
+                                    <Grid Name="Grid_RR_TimeQuantum" Height="75" Margin="0,0,0,5" Visibility="Collapsed">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_HourglassStart"/> Time Quantum <LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">RR 스케줄러에서 사용할 δ를 지정해주세요.</Run>
+                                        </TextBlock>
+                                        <hc:TextBox Grid.Column="1" Name="TimeQuantumTextBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+                                    </Grid>
 
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0" TextWrapping="WrapWithOverflow">
+                                        <fa:FontAwesome Icon="Solid_Spinner"/> 시각화 지연시간 <LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">Tick 마다 대기할 지연시간을 입력해주세요.</Run>
+                                        </TextBlock>
+                                        <hc:TextBox Grid.Column="1" Name="VisDelayTextBox" Text="100" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+                                    </Grid>
+
+                                </StackPanel>
+                            </hc:ScrollViewer>
+
+                        </Grid>
+                        <Grid Grid.Row="1" Name="Grid_ProcessorSettings" Visibility="Hidden" >
+                            <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
+                                <StackPanel>
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_BoltLightning"/> P Core 개수<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">성능 코어의 개수를 설정합니다.</Run>
+                                        </TextBlock>
+                                        <hc:TextBox Grid.Column="1" Name="PcoreCountTextBox" Text="1" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
 
                                     </Grid>
 
-                                </Grid>
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_Leaf"/> E Core 개수<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">효율 코어의 개수를 설정합니다.</Run>
+                                        </TextBlock>
+                                        <hc:TextBox Grid.Column="1" Name="EcoreCountTextBox" Text="1" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
 
-                            </StackPanel>
+                                    </Grid>
+                                    <TextBlock TextWrapping="WrapWithOverflow" Margin="10" FontSize="16">
+                                    <fa:FontAwesome Icon="Regular_CircleQuestion"/> <Run FontWeight="SemiBold" FontSize="18">코어에 대한 정보</Run>
+                                    <LineBreak/>
+                                    P Core는 1초에 2의 일을 처리할 수 있으며 1초당 3W를 소모합니다. Idle 상태에서 시동 시 0.5W를 소모합니다.<LineBreak/>
+                                    E Core는 1초에 1의 일을 처리할 수 있으며 1초당 1W를 소모합니다. Idle 상태에서 시동 시 0.1W를 소모합니다.<LineBreak/>
+                                    </TextBlock>
+
+
+                                </StackPanel>
+                            </hc:ScrollViewer>
+
+                        </Grid>
+
+                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Visible">
+                            <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
+                                <StackPanel>
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_Trash"/> 프로세스 목록 비우기<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">프로세스 목록을 모두 비웁니다.</Run>
+                                        </TextBlock>
+
+                                        <Button Click="ClearProcessClicked" Grid.Column="1" Style="{StaticResource ButtonDanger}" Margin="15" HorizontalAlignment="Stretch">
+                                            프로세스 목록 비우기
+                                        </Button>
+
+                                    </Grid>
+
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_WandMagicSparkles"/> 랜덤 프로세스 추가하기<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">도착시간과 실행시간이 랜덤인 프로세스를 추가합니다</Run>
+                                        </TextBlock>
+
+                                        <Button Click="AddRandomProcessClicked" Grid.Column="1" Style="{StaticResource ButtonPrimary}" Margin="15" HorizontalAlignment="Stretch">
+                                            랜덤 프로세스 추가
+                                        </Button>
+
+                                    </Grid>
+                                    <Grid Height="100" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_UserAstronaut"/> 프로세스 추가하기<LineBreak/>
+                                        <Run FontSize="16" FontWeight="Medium">사용자 지정 프로세스를 추가합니다</Run>
+                                        </TextBlock>
+
+                                        <Grid Grid.Column="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <hc:TextBox Name="TextBox_ArrivalTime" VerticalAlignment="Top" Margin="15" hc:InfoElement.Placeholder="ArrivalTime">
+
+                                            </hc:TextBox>
+                                            <hc:TextBox Name="TextBox_BurstTime" Grid.Column="1" VerticalAlignment="Top" Margin="15" hc:InfoElement.Placeholder="BurstTime">
+
+                                            </hc:TextBox>
+                                            <Button Click="AddProcessClicked" Grid.ColumnSpan="2" Style="{StaticResource ButtonPrimary}" Margin="15" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                                                프로세스 추가
+                                            </Button>
+
+
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock TextWrapping="WrapWithOverflow" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                            <fa:FontAwesome Icon="Solid_WandMagicSparkles"/> 프로세스 내보내기/가져오기<LineBreak/>
+                                            <Run FontSize="16" FontWeight="Medium">현재 프로세스 목록을 json 파일로 내보내거나 json 파일로 부터 프로세스 목록을 가져옵니다.</Run>            
+                                        </TextBlock>
+
+                                        <Grid Grid.Column="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button Grid.Column="0" Margin="15" HorizontalAlignment="Stretch" Click="ImportProcessClicked">
+                                                <TextBlock>
+                                                    <fa:FontAwesome Icon="Solid_FileImport"/> 프로세스 가져오기
+                                                </TextBlock>
+                                            </Button>
+
+                                            <Button Grid.Column="1" Margin="15" HorizontalAlignment="Stretch" Click="ExportProcessClicked" Style="{StaticResource ButtonPrimary}">
+                                                <TextBlock>
+                                                    <fa:FontAwesome Icon="Solid_FileExport"/> 프로세스 내보내기
+                                                </TextBlock>
+                                            </Button>
+
+                                        </Grid>
+
+                                    </Grid>
+
+                                </StackPanel>
+                            </hc:ScrollViewer>
+
                         </Grid>
                         
                         <!-- Footer -->
@@ -303,9 +346,17 @@
                     </Grid>
                     
                     <!--Cell-->
-                    <DataGrid Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsReadOnly="True">
-                        
-                       
+                    <DataGrid Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsReadOnly="True" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="16" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="프로세스 이름" Binding="{Binding Name}" Width="1*"/>
+                            <DataGridTextColumn Header="AT" Binding="{Binding ArrivalTime}" Width="1*"/>
+                            <DataGridTextColumn Header="BT" Binding="{Binding BurstTime}" Width="1*"/>
+                            <DataGridTextColumn Header="WT" Binding="{Binding WaitingTime}" Width="1*"/>
+                            <DataGridTextColumn Header="TT" Binding="{Binding TurnaroundTime}" Width="1*"/>
+                            <DataGridTextColumn Header="NTT" Binding="{Binding NormalizedTTime, StringFormat={}{0:F2}}" Width="Auto"/>
+
+                        </DataGrid.Columns>
+
                     </DataGrid>
                 </Grid>
             </Grid>
