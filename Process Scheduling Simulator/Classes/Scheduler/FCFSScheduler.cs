@@ -1,47 +1,105 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
+using Process_Scheduling_Simulator.Classes;
 using Process_Scheduling_Simulator.View;
 
 namespace Process_Scheduling_Simulator.Classes.Scheduler
 {
     public class FCFSScheduler : Scheduler
     {
+        //생성자
         public FCFSScheduler(List<Process> processes, List<Processor> processors)
             : base(processes, processors) { }
 
         public async override Task Schedule()
         {
+            //초기화
             Reset();
-            var incomingProcesses = new Queue<Process>(Processes.OrderBy(p => p.ArrivalTime));
-            var readyQueue = new List<Process>();
 
-            while (CompletedProcesses.Count < Processes.Count) //전체 프로세스 갯수보다 완료한 프로세스가 적은 동안 루프
+            var incomingProcesses = new Queue<Process>(Processes.OrderBy(p => p.ArrivalTime));
+            var readyQueue = new Queue<Process>();
+
+            Console.WriteLine("--- FCFS Simulation Start ---");
+
+            while (CompletedProcesses.Count < Processes.Count)
             {
                 int delay = 100;
-                int.TryParse(Init.mainApplication.VisDelayTextBox.Text, out delay);
-                await Task.Delay(delay); // 시각화 지연시간 적용 - 이 코드는 공통으로 수정하지 말아주세요
+                int.TryParse(Init.mainApplication?.VisDelayTextBox.Text, out delay);
+                await Task.Delay(Math.Max(1, delay));
 
-                // TODO : 여기에 스케줄링 알고리즘을 작성하시면 됩니다.
-                // 예시 : 프로세스 도착 처리(레디큐에 삽입). 도착 시간으로 정렬한 프로세스 목록 incomingProcesses에서 currentTime보다 ArrivalTime이 작은 프로세스를 readyQueue에 추가하는 코드
-                /*
+                // ---프로세스 도착---
                 while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
                 {
                     var arrivedProcess = incomingProcesses.Dequeue();
-                    readyQueue.Add(arrivedProcess);
+                    readyQueue.Enqueue(arrivedProcess);
                 }
-                */
 
-                //프로세스 할당
-                
-                //프로세서 틱 처리 등
+                // ---프로세서에 프로세스 할당---
+                foreach (var processor in Processors)
+                {
+                    if (processor.IsIdle && readyQueue.Count > 0)
+                    {
+                        var processToRun = readyQueue.Dequeue();
+                        processor.AssignProcess(processToRun, CurrentTime);
+                    }
+                }
 
+                // ---Tick 및 완료 처리---
+                List<Process> justCompletedProcesses = new List<Process>();
+                foreach (var processor in Processors)
+                {
+                    if (!processor.IsIdle)
+                    {
+                        Process completedProcess = processor.Tick(CurrentTime);
+
+                        if (completedProcess != null)
+                        {
+                            // --- 수정된 부분 ---
+                            // CompletionTime 속성에 값을 할당하는 대신,
+                            // 완료 시간 (CurrentTime + 1)을 직접 사용하여 TurnaroundTime 계산
+                            int completionTime = CurrentTime + 1; // 완료 시간 계산
+
+                            // TurnaroundTime 계산
+                            completedProcess.TurnaroundTime = completionTime - completedProcess.ArrivalTime;
+
+                            // 대기 시간 = 반환 시간 - BT
+                            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - completedProcess.BurstTime);
+
+                            // NTT 계산
+                            completedProcess.NormalizedTTime = (completedProcess.BurstTime > 0)
+                                ? (double)completedProcess.TurnaroundTime / completedProcess.BurstTime
+                                : 0;
+
+                            justCompletedProcesses.Add(completedProcess);
+                            // --- 수정 완료 ---
+                        }
+                    }
+                }
+
+                foreach (var p in justCompletedProcesses)
+                {
+                    CompletedProcesses.Add(p);
+                }
+
+                //이하 RR과 로직 동일
                 CurrentTime++;
+
+                //--- 종료 조건 확인---
+                if (CompletedProcesses.Count == Processes.Count && incomingProcesses.Count == 0 && readyQueue.Count == 0 && Processors.All(p => p.IsIdle))
+                {
+                    Console.WriteLine($"--- FCFS Simulation Complete at Time {CurrentTime} ---");
+                    break;
+                }
+
+                if (CurrentTime > 20000)
+                {
+                    Console.WriteLine("Warning: Simulation exceeded maximum time limit.");
+                    break;
+                }
             }
+            CalculateAverageMetrics();
         }
     }
 }

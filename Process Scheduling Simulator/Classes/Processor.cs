@@ -18,6 +18,9 @@ namespace Process_Scheduling_Simulator.Classes
         public double StartupPower { get; private set; }
         public double TotalConsumedPower { get; private set; }
 
+        //RRScheduler의 BurstTime 직접 관리(추가)
+        public int RemainingBurstTime { get; private set; }
+
         // --- 내부 상태 ---
         private readonly int _processorIndexInGantt;
         private int _startTimeCurrentProcess = -1;
