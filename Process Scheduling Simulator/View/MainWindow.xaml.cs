@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -73,7 +76,9 @@ namespace Process_Scheduling_Simulator
             set { _normalizedTTime = value; OnPropertyChanged("NormalizedTTime"); }
         }
 
+        
         private Brush _processColor;
+        [JsonIgnore]
         public Brush ProcessColor
         {
             get { return _processColor ?? Brushes.Gray; } // 기본값으로 회색 반환
@@ -131,7 +136,13 @@ namespace Process_Scheduling_Simulator
         public MainWindow()
         {
             InitializeComponent();
-            this.Opacity = 0;
+
+            BorderMain.Opacity = 0;
+            Grid_Gantt.Opacity = 0;
+            Grid_SettingsStats.Opacity = 0;
+            
+            Grid_Gantt.Visibility = Visibility.Collapsed;
+            Grid_SettingsStats.Visibility = Visibility.Collapsed;
             ProcessList = new ObservableCollection<Process>()
             {
                 new("P01", 0, 3, Brushes.Gray), // 이름 부여
@@ -151,8 +162,6 @@ namespace Process_Scheduling_Simulator
             };
 
             DataContext = this;
-
-
         }
 
         private void ViewChanger_hideAll()
@@ -182,19 +191,42 @@ namespace Process_Scheduling_Simulator
 
         private async void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
-            DrawGanttBar(0, 0, 0, "P1", Brushes.Gray);
-            ClearChart();
+
+            await Task.Delay(200);
+            AnimationController.BeginAnimation(BorderMain, OpacityProperty, duration: 0.3, easingFunction: null);
+            AnimationController.BeginAnimation(BorderMain, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase(), easingMode: EasingMode.EaseOut);
+            AnimationController.BeginAnimation(BorderMain, WidthProperty, 0, 1650, 0.5, easingFunction: new CubicEase(), easingMode: EasingMode.EaseOut);
+            await Task.Delay(750);
+            BorderMain.BeginAnimation(HeightProperty, null);
+            BorderMain.BeginAnimation(WidthProperty, null);
+            Grid_Gantt.Visibility= Visibility.Visible;
+
+            Grid_SettingsStats.Visibility = Visibility.Visible;
             ViewChanger_hideAll();
             ViewChanger_SchedulingSettingsClicked(sender, e);
-            await Task.Delay(50);
-            AnimationController.BeginAnimation(this, OpacityProperty, duration: 0.7, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(this, HeightProperty, 0, 900, 0.5, easingFunction: new CubicEase());
+
+            AnimationController.BeginAnimation(Grid_Gantt, OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new SineEase());
+            await Task.Delay(1);
+            //DrawGanttBar(0, 0, 0, "P1", Brushes.Gray); // 초기화
+            ClearChart();
+            await Task.Delay(249);
+            AnimationController.BeginAnimation(Grid_SettingsStats, OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new SineEase());
+
+
+
         }
 
         private async void AppCloseClickedEventHandler(object sender, RoutedEventArgs e)
         {
-            AnimationController.BeginAnimation(this, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(this, HeightProperty, (int)this.ActualHeight, 0, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(Grid_Gantt, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
+            await Task.Delay(250);
+            AnimationController.BeginAnimation(Grid_SettingsStats, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
+            await Task.Delay(750);
+            Grid_Gantt.Visibility = Visibility.Collapsed;
+            Grid_SettingsStats.Visibility = Visibility.Collapsed;
+            AnimationController.BeginAnimation(BorderMain, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, WidthProperty, BorderMain.ActualWidth, 0, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, HeightProperty, BorderMain.ActualHeight, 0, 0.5, easingFunction: new CubicEase());
             await Task.Delay(500);
             this.Close();
         }
@@ -209,15 +241,6 @@ namespace Process_Scheduling_Simulator
         private async void SchedulerStartClickedHandler(object sender, RoutedEventArgs e)
         {
             (sender as Button).IsEnabled = false; // 버튼 비활성화
-            if (schedulerStarted)
-            {
-                schedulerStarted = false; // 스케줄러가 이미 시작된 경우
-                ResultsDataGrid.ItemsSource = this.ProcessList; // 결과 그리드 초기화
-                (sender as Button).Content = "시뮬레이션 시작"; // 버튼 텍스트 변경
-                (sender as Button).IsEnabled = true;
-                ClearChart(); // Gantt 차트 초기화
-                return;
-            }
             AssignColorsToProcessList();
             try // 오류 발생 가능성이 있으므로 try-catch 블록 사용
             {
@@ -365,7 +388,6 @@ namespace Process_Scheduling_Simulator
                 HandyControl.Controls.Growl.Success($"{selectedAlgorithm} 시뮬레이션이 성공적으로 종료되었습니다."); // 사용자 알림
 
                 Button btn = sender as Button;
-                btn.Content = "시뮬레이션 재설정";
 
             }
             catch(FormatException ex)
@@ -437,6 +459,92 @@ namespace Process_Scheduling_Simulator
             catch (Exception ex)
             {
                 HandyControl.Controls.Growl.Error($"프로세스 추가 중 오류 발생 : {ex.Message}\n\n{ex.StackTrace}");
+            }
+        }
+
+        private void ImportProcessClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 파일 열기 대화 상자 표시
+                Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                    DefaultExt = "json"
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    // 선택한 파일에서 JSON 문자열 읽기
+                    string json = File.ReadAllText(openFileDialog.FileName);
+
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true, // 대소문자 구분 없이 속성 이름 매칭
+                        ReferenceHandler = ReferenceHandler.Preserve, // 순환 참조 처리
+                    };
+
+                    // JSON 문자열을 ObservableCollection<Process>로 역직렬화
+                    var importedProcesses = JsonSerializer.Deserialize<ObservableCollection<Process>>(json, options);
+
+                    if (importedProcesses != null)
+                    {
+                        // 기존 ProcessList를 새로 불러온 데이터로 교체
+                        ProcessList.Clear();
+                        foreach (var process in importedProcesses)
+                        {
+                            ProcessList.Add(process);
+                        }
+
+                        // 결과 그리드 업데이트
+                        ResultsDataGrid.ItemsSource = ProcessList;
+
+                        HandyControl.Controls.Growl.Success("프로세스 목록이 성공적으로 불러와졌습니다.");
+                    }
+                    else
+                    {
+                        HandyControl.Controls.Growl.Warning("JSON 파일에서 데이터를 읽을 수 없습니다.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($"불러오기 중 오류 발생: {ex.Message}");
+            }
+        }
+
+        private void ExportProcessClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // JSON 직렬화 옵션 설정
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true, // 보기 좋게 들여쓰기
+                    ReferenceHandler = ReferenceHandler.Preserve, // 순환 참조 처리
+                };
+
+                // ProcessList를 JSON 문자열로 변환
+                string json = JsonSerializer.Serialize(ProcessList, options);
+
+                // 파일 저장 대화 상자 표시
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                    DefaultExt = "json",
+                    FileName = "ProcessList.json"
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    // 선택한 경로에 JSON 파일 저장
+                    File.WriteAllText(saveFileDialog.FileName, json);
+                    HandyControl.Controls.Growl.Success("프로세스 목록이 성공적으로 내보내졌습니다.");
+                }
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($"내보내기 중 오류 발생: {ex.Message}");
             }
         }
 
@@ -570,8 +678,9 @@ namespace Process_Scheduling_Simulator
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
                 ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}",
+                Opacity = 0
 
-        }; 
+            }; 
 
             // 바 안에 프로세스 이름 표시 (옵션)
             var textBlock = new TextBlock
@@ -593,6 +702,7 @@ namespace Process_Scheduling_Simulator
 
             MainCanvas.Children.Add(border);
             _ganttBars.Add(border);
+            AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
 
             // 최대 시간 업데이트 및 타임바 갱신
             if (endTime > _maxTime)
@@ -783,6 +893,28 @@ namespace Process_Scheduling_Simulator
         private void AppMinimizeClickedEventHandler(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
+        }
+
+        private void AlgorithmSelectionChangedHandler(object sender, SelectionChangedEventArgs e)
+        {
+
+
+            if ((sender as ComboBox).SelectedItem is ComboBoxItem selectedItem)
+            {
+                string selectedAlgorithm = selectedItem.Content.ToString();
+                if(TimeQuantumTextBox is null)
+                {
+                    return;
+                }
+                if (selectedAlgorithm == "RR")
+                {
+                    Grid_RR_TimeQuantum.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Grid_RR_TimeQuantum.Visibility = Visibility.Collapsed;
+                }
+            }
         }
 
 

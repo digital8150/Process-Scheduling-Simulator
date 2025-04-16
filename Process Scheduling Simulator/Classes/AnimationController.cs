@@ -10,11 +10,12 @@ namespace Process_Scheduling_Simulator.Classes
 {
     class AnimationController
     {
+
         public static void BeginAnimation(
             UIElement target,
             DependencyProperty property,
-            int from = 0,
-            int to = 1,
+            double from = 0,
+            double to = 1,
             double duration = 0.3,
             EasingMode easingMode = EasingMode.EaseInOut,
             IEasingFunction easingFunction = null)
