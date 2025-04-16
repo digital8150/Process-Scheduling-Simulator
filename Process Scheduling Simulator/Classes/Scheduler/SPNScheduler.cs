@@ -32,7 +32,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 }
 
                 // 프로세서가 비어있는 경우에만 작업 할당
-                foreach (var processor in Processors)
+                foreach (var processor in Processors.OrderBy(p => p.Type))
                 {
                     if (processor.IsIdle && readyQueue.Count > 0)
                     {
@@ -40,7 +40,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         var nextProcess = readyQueue.OrderBy(p => p.ServiceTime).First();
 
                         readyQueue.Remove(nextProcess);
-                        processor.Assign(nextProcess, CurrentTime); // 시작 시간 설정됨
+                        processor.AssignProcess(nextProcess, CurrentTime); // 시작 시간 설정됨
                         RunningProcesses.Add(nextProcess);
                     }
                 }
@@ -57,26 +57,16 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         {
                             processor.Release(); // 프로세서에서 제거
                             running.EndTime = CurrentTime + 1;
+                            CalculateCompletionMetrics(running, processor, CurrentTime);
                             CompletedProcesses.Add(running);
                             RunningProcesses.Remove(running);
                         }
                     }
                 }    
-                // TODO : 여기에 스케줄링 알고리즘을 작성하시면 됩니다.
-                // 예시 : 프로세스 도착 처리(레디큐에 삽입). 도착 시간으로 정렬한 프로세스 목록 incomingProcesses에서 currentTime보다 ArrivalTime이 작은 프로세스를 readyQueue에 추가하는 코드
-                /*
-                while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
-                {
-                    var arrivedProcess = incomingProcesses.Dequeue();
-                    readyQueue.Add(arrivedProcess);
-                }
-                */
 
-                //프로세스 할당
-
-                //프로세서 틱 처리 등
                 CurrentTime++;
             }
+            CalculateAverageMetrics();
         }
     }
 }
