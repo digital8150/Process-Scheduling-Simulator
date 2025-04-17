@@ -37,36 +37,57 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     if (processor.IsIdle && readyQueue.Count > 0)
                     {
                         // SPN: 가장 짧은 서비스 시간을 가진 프로세스 선택
-                        var nextProcess = readyQueue.OrderBy(p => p.ServiceTime).First();
+                        var nextProcess = readyQueue.OrderBy(p => p.BurstTime).First();
 
                         readyQueue.Remove(nextProcess);
                         processor.AssignProcess(nextProcess, CurrentTime); // 시작 시간 설정됨
-                        RunningProcesses.Add(nextProcess);
                     }
                 }
 
                 // 실행 중인 프로세스들 처리
                 foreach (var processor in Processors)
                 {
-                    if (!processor.IsIdle)
-                    {
-                        processor.Tick(); // 실행 시간 1만큼 증가
+                    Process completedProcess = processor.Tick(CurrentTime);
 
-                        var running = processor.CurrentProcess;
-                        if (running.RemainingTime <= 0)
-                        {
-                            processor.Release(); // 프로세서에서 제거
-                            running.EndTime = CurrentTime + 1;
-                            CalculateCompletionMetrics(running, processor, CurrentTime);
-                            CompletedProcesses.Add(running);
-                            RunningProcesses.Remove(running);
-                        }
+                    if (completedProcess != null)
+                    {
+                        CalculateCompletionMetrics(completedProcess, processor, CurrentTime); // 완료 통계 계산
+                        CompletedProcesses.Add(completedProcess);
+                        // Console.WriteLine($"  Completion: {completedProcess.Name} finished on {processor.Name}.");
                     }
-                }    
+                }
 
                 CurrentTime++;
             }
             CalculateAverageMetrics();
+        }
+
+        private void CalculateCompletionMetrics(Process completedProcess, Processor processor, int currentTime)
+        {
+            int completionTime = currentTime + 1;
+            completedProcess.TurnaroundTime = completionTime - completedProcess.ArrivalTime;
+
+            int actualExecutionTicks;
+            double originalBurstTime = completedProcess.BurstTime;
+
+            // 실제 실행 시간 계산 (완료된 코어 기준 - 이 부분은 시나리오에 따라 더 정교화될 수 있음)
+            if (processor.Type == CoreType.P)
+            {
+                actualExecutionTicks = (originalBurstTime <= 0) ? 0 : (int)Math.Ceiling(originalBurstTime / processor.PerformanceFactor);
+            }
+            else
+            {
+                actualExecutionTicks = (int)Math.Max(0, originalBurstTime);
+            }
+
+            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - actualExecutionTicks); // 음수 방지
+            completedProcess.NormalizedTTime = (originalBurstTime > 0) ? (double)completedProcess.TurnaroundTime / originalBurstTime : 0;
+
+            if (completedProcess.WaitingTime < 0) // 혹시 모를 음수 WT 재확인
+            {
+                Console.WriteLine($"!!! WARNING: Negative WT calculated for {completedProcess.Name}. Clamped to 0.");
+                completedProcess.WaitingTime = 0;
+            }
         }
     }
 }
