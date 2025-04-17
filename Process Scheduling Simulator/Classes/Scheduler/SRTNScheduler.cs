@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Process_Scheduling_Simulator.View;
 
@@ -18,28 +17,79 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
             var incomingProcesses = new Queue<Process>(Processes.OrderBy(p => p.ArrivalTime));
             var readyQueue = new List<Process>();
 
-            while (CompletedProcesses.Count < Processes.Count) //전체 프로세스 갯수보다 완료한 프로세스가 적은 동안 루프
+            while (CompletedProcesses.Count < Processes.Count)
             {
                 int delay = 100;
                 int.TryParse(Init.mainApplication.VisDelayTextBox.Text, out delay);
-                await Task.Delay(delay); // 시각화 지연시간 적용 - 이 코드는 공통으로 수정하지 말아주세요
+                await Task.Delay(delay); // 시각화용 딜레이
 
-                // TODO : 여기에 스케줄링 알고리즘을 작성하시면 됩니다.
-                // 예시 : 프로세스 도착 처리(레디큐에 삽입). 도착 시간으로 정렬한 프로세스 목록 incomingProcesses에서 currentTime보다 ArrivalTime이 작은 프로세스를 readyQueue에 추가하는 코드
-                /*
+                // 도착한 프로세스를 레디 큐에 추가
                 while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
                 {
-                    var arrivedProcess = incomingProcesses.Dequeue();
-                    readyQueue.Add(arrivedProcess);
+                    var arrived = incomingProcesses.Dequeue();
+                    readyQueue.Add(arrived);
                 }
-                */
 
-                //프로세스 할당
+                // 현재 실행 중인 프로세스를 레디 큐로 되돌리고 선점
+                foreach (var processor in Processors)
+                {
+                    if (processor.RunningProcess != null)
+                    {
+                        readyQueue.Add((Process)processor.RunningProcess);
+                        processor.RunningProcess = null;
+                    }
+                }
 
-                //프로세서 틱 처리 등
+                // 남은 시간이 가장 짧은 프로세스를 정렬하고 할당
+                var sortedQueue = readyQueue.OrderBy(p => p.RemainingTime).ToList();
+
+                foreach (var processor in Processors)
+                {
+                    if (sortedQueue.Count > 0)
+                    {
+                        var nextProcess = sortedQueue[0];
+                        readyQueue.Remove(nextProcess);
+                        processor.AssignProcess(nextProcess, CurrentTime);
+                    }
+                }
+
+                // 한 틱 실행 및 종료 확인
+                foreach (var processor in Processors)
+                {
+                    var completedProcess = processor.Tick(CurrentTime);
+                    if (completedProcess != null)
+                    {
+                        completedProcess.CompletionTime = CurrentTime + 1; // ⬅️ Tick 후 종료 시점 기록
+                        CalculateCompletionMetrics(completedProcess, processor, CurrentTime + 1);
+                        CompletedProcesses.Add(completedProcess);
+                    }
+                }
+
+                // 정지 조건 체크
+                if (CurrentTime > 10000 || (
+                    incomingProcesses.Count == 0 &&
+                    readyQueue.Count == 0 &&
+                    Processors.All(p => p.IsIdle)))
+                {
+                    Console.WriteLine("정지 조건 도달. 루프 종료.");
+                    break;
+                }
 
                 CurrentTime++;
             }
+
+            Console.WriteLine("--- SRTN Scheduling Complete ---");
+            CalculateAverageMetrics();
+        }
+
+        private void CalculateCompletionMetrics(Process completedProcess, Processor processor, int currentTime)
+        {
+            completedProcess.TurnaroundTime = completedProcess.CompletionTime - completedProcess.ArrivalTime;
+            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - completedProcess.BurstTime);
+            completedProcess.NormalizedTTime = (completedProcess.BurstTime > 0)
+                ? (double)completedProcess.TurnaroundTime / completedProcess.BurstTime
+                : 0;
         }
     }
 }
+//실행은 되지만 실행되는 결과가 이상한 것 같음. 실행시간도 다른 알고리즘들에 비해 적음..
