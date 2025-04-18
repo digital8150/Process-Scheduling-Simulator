@@ -20,7 +20,7 @@ namespace Process_Scheduling_Simulator.Classes
 
         //RRScheduler의 BurstTime 직접 관리(추가)
         public int RemainingBurstTime { get; private set; }
-        public object RunningProcess { get; internal set; }
+        //public object RunningProcess { get; internal set; }
 
         // --- 내부 상태 ---
         private readonly int _processorIndexInGantt;
@@ -99,6 +99,7 @@ namespace Process_Scheduling_Simulator.Classes
             // --- 활성 전력 누적 ---
             // 현재 Tick에서 작업을 수행하므로 활성 전력을 소모합니다.
             TotalConsumedPower += ActivePower;
+            this.CurrentProcess.CPUTicks++;
             // Console.WriteLine($"  Debug Power: {Name} at Time {currentTime}. Active Power ({ActivePower}W) added during Tick. Total Now: {TotalConsumedPower:F1}");
 
             // 간트 차트 그리기 (필요시 유지)
@@ -106,7 +107,7 @@ namespace Process_Scheduling_Simulator.Classes
 
             // 작업량 처리
             _workRemaining -= PerformanceFactor;
-
+            CurrentProcess.RemainingBurstTime = Math.Max(0, _workRemaining); // 남은 BurstTime 업데이트
             // --- 마지막 활성 Tick 업데이트 ---
             // 현재 Tick에서 활성 상태였으므로 _lastActiveTick를 현재 시간으로 업데이트합니다.
             _lastActiveTick = currentTime;
