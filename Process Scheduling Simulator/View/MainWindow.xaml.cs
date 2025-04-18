@@ -76,7 +76,9 @@ namespace Process_Scheduling_Simulator
             set { _normalizedTTime = value; OnPropertyChanged("NormalizedTTime"); }
         }
 
-        
+        public int CPUTicks { get; internal set; } // CPU에서 소모된 Tick 수 (예: 1ms = 1 Tick으로 가정)
+
+
         private Brush _processColor;
         [JsonIgnore]
         public Brush ProcessColor

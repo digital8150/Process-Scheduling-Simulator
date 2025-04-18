@@ -31,6 +31,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 }
 
                 // 현재 실행 중인 프로세스를 레디 큐로 되돌리고 선점
+                /*
                 foreach (var processor in Processors)
                 {
                     if (processor.RunningProcess != null)
@@ -39,8 +40,10 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         processor.RunningProcess = null;
                     }
                 }
+                */
 
                 // 남은 시간이 가장 짧은 프로세스를 정렬하고 할당
+                /*
                 var sortedQueue = readyQueue.OrderBy(p => p.RemainingTime).ToList();
 
                 foreach (var processor in Processors)
@@ -50,6 +53,33 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         var nextProcess = sortedQueue[0];
                         readyQueue.Remove(nextProcess);
                         processor.AssignProcess(nextProcess, CurrentTime);
+                    }
+                }
+                */
+
+                //유휴 프로세서에 가장 짧은 남은 시간 프로세스 할당
+                foreach(var processor in Processors.OrderBy(p => p.Type))
+                {
+                    if (processor.IsIdle && readyQueue.Count > 0)
+                    {
+                        var nextProcess = readyQueue.OrderBy(p => p.RemainingTime).First();
+                        readyQueue.Remove(nextProcess);
+                        processor.AssignProcess(nextProcess, CurrentTime);
+                    }
+                }
+
+                //가장 짧은 프로세스가 레디 큐에 있다면 선점
+                foreach (var processor in Processors)
+                {
+                    if (processor.CurrentProcess != null && readyQueue.Count > 0)
+                    {
+                        var nextProcess = readyQueue.OrderBy(p => p.RemainingBurstTime).First();
+                        if (nextProcess.RemainingBurstTime < processor.CurrentProcess.RemainingBurstTime)
+                        {
+                            readyQueue.Add(processor.PreemptProcess(CurrentTime));
+                            processor.AssignProcess(nextProcess, CurrentTime);
+                            readyQueue.Remove(nextProcess);
+                        }
                     }
                 }
 
@@ -65,6 +95,8 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     }
                 }
 
+                CurrentTime++;
+
                 // 정지 조건 체크
                 if (CurrentTime > 10000 || (
                     incomingProcesses.Count == 0 &&
@@ -75,7 +107,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     break;
                 }
 
-                CurrentTime++;
+                
             }
 
             Console.WriteLine("--- SRTN Scheduling Complete ---");
@@ -85,7 +117,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
         private void CalculateCompletionMetrics(Process completedProcess, Processor processor, int currentTime)
         {
             completedProcess.TurnaroundTime = completedProcess.CompletionTime - completedProcess.ArrivalTime;
-            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - completedProcess.BurstTime);
+            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - completedProcess.CPUTicks);
             completedProcess.NormalizedTTime = (completedProcess.BurstTime > 0)
                 ? (double)completedProcess.TurnaroundTime / completedProcess.BurstTime
                 : 0;
