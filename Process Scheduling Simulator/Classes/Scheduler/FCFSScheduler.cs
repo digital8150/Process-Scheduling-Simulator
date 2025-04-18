@@ -64,8 +64,8 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                             // TurnaroundTime 계산
                             completedProcess.TurnaroundTime = completionTime - completedProcess.ArrivalTime;
 
-                            // 대기 시간 = 반환 시간 - BT
-                            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - completedProcess.BurstTime);
+                            // 대기 시간 = 반환 시간 - CPU Tick 시간
+                            completedProcess.WaitingTime = Math.Max(0, completedProcess.TurnaroundTime - completedProcess.CPUTicks);
 
                             // NTT 계산
                             completedProcess.NormalizedTTime = (completedProcess.BurstTime > 0)
