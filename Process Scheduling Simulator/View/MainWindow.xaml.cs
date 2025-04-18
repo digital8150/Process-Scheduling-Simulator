@@ -89,6 +89,9 @@ namespace Process_Scheduling_Simulator
             }
         }
 
+        public object RemainingTime { get; internal set; }
+        public int CompletionTime { get; internal set; }
+
         // --- INotifyPropertyChanged 구현 ---
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

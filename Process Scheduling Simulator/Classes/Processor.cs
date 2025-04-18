@@ -20,6 +20,7 @@ namespace Process_Scheduling_Simulator.Classes
 
         //RRScheduler의 BurstTime 직접 관리(추가)
         public int RemainingBurstTime { get; private set; }
+        public object RunningProcess { get; internal set; }
 
         // --- 내부 상태 ---
         private readonly int _processorIndexInGantt;
