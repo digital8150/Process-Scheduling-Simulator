@@ -346,14 +346,14 @@
                     </Grid>
                     
                     <!--Cell-->
-                    <DataGrid Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsReadOnly="True" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="16" AutoGenerateColumns="False">
+                    <DataGrid hc:ScrollViewer.IsInertiaEnabled="True" Name="ResultsDataGrid" Grid.Row="1" ItemsSource="{Binding ProcessList}" IsReadOnly="True" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="16" AutoGenerateColumns="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="프로세스 이름" Binding="{Binding Name}" Width="1*"/>
+                            <DataGridTextColumn Header="프로세스" Binding="{Binding Name}" Width="1*"/>
                             <DataGridTextColumn Header="AT" Binding="{Binding ArrivalTime}" Width="1*"/>
                             <DataGridTextColumn Header="BT" Binding="{Binding BurstTime}" Width="1*"/>
                             <DataGridTextColumn Header="WT" Binding="{Binding WaitingTime}" Width="1*"/>
                             <DataGridTextColumn Header="TT" Binding="{Binding TurnaroundTime}" Width="1*"/>
-                            <DataGridTextColumn Header="NTT" Binding="{Binding NormalizedTTime, StringFormat={}{0:F2}}" Width="Auto"/>
+                            <DataGridTextColumn Header="NTT" Binding="{Binding NormalizedTTime, StringFormat={}{0:F2}}" Width="1*"/>
 
                         </DataGrid.Columns>
 
