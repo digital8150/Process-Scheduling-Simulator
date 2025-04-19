@@ -922,6 +922,10 @@ namespace Process_Scheduling_Simulator
             }
         }
 
-
+        private void open_credits(object sender, MouseButtonEventArgs e)
+        {
+            View.License license = new View.License();
+            license.Show();
+        }
     }
 }

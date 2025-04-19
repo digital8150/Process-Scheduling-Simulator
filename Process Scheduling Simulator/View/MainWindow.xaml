@@ -364,9 +364,12 @@
 
             <!-- Footer -->
             <Grid Grid.Row="3">
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14" Foreground="#FFC50075">
-                    Copyright(c) 2025 오!운영 상담소 all rights reserved.
-                </TextBlock>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14" Foreground="#FFC50075">
+                    Copyright(c) 2025 오!운영 상담소 all rights reserved.  <TextBlock  Foreground="DarkBlue" PreviewMouseDown="open_credits"> Credits </TextBlock>
+                    </TextBlock>
+                </StackPanel>
+
             </Grid>
         </Grid>
     </Border>
