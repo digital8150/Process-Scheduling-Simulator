@@ -42,7 +42,7 @@
                         Process Scheduling Simulator<LineBreak/>
                         <Run FontSize="18" FontWeight="Medium">오!운영 상담소</Run><LineBreak/>
                         <Run FontSize="16" FontWeight="Regular">제세형 김재인 임효준 장교은</Run><LineBreak/>
-                        <Run FontSize="14" FontWeight="Regular">Process Scheduling Simulator는 여러 오픈소스   라이브러리를 사용하여 제작되었습니다.</Run>
+                        <Run FontSize="14" FontWeight="Regular">Process Scheduling Simulator의 일부는 오픈소스 라이브러리를 사용하여 제작되었습니다.</Run>
                     </TextBlock>
                 </StackPanel>
                 
