@@ -226,12 +226,12 @@ namespace Process_Scheduling_Simulator
             AnimationController.BeginAnimation(Grid_Gantt, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
             await Task.Delay(250);
             AnimationController.BeginAnimation(Grid_SettingsStats, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
-            await Task.Delay(750);
+            await Task.Delay(500);
             Grid_Gantt.Visibility = Visibility.Collapsed;
             Grid_SettingsStats.Visibility = Visibility.Collapsed;
-            AnimationController.BeginAnimation(BorderMain, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(BorderMain, WidthProperty, BorderMain.ActualWidth, 0, 0.5, easingFunction: new CubicEase());
-            AnimationController.BeginAnimation(BorderMain, HeightProperty, BorderMain.ActualHeight, 0, 0.5, easingFunction: new CubicEase());
+            AnimationController.BeginAnimation(BorderMain, OpacityProperty, from: 1, to: 0, duration: 0.5, easingFunction: new QuadraticEase());
+            AnimationController.BeginAnimation(BorderMain, WidthProperty, BorderMain.ActualWidth, 0, 0.5, easingFunction: new QuadraticEase());
+            AnimationController.BeginAnimation(BorderMain, HeightProperty, BorderMain.ActualHeight, 0, 0.5, easingFunction: new QuadraticEase());
             await Task.Delay(500);
             this.Close();
         }
