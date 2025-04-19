@@ -365,7 +365,7 @@
             <!-- Footer -->
             <Grid Grid.Row="3">
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="/Resources/#Pretendard Variable" FontWeight="Medium" FontSize="14" Foreground="#FFC50075">
-                    Copyright(c) 2025 오!운영 솔루션 all rights reserved.
+                    Copyright(c) 2025 오!운영 상담소 all rights reserved.
                 </TextBlock>
             </Grid>
         </Grid>
