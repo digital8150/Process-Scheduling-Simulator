@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Process Scheduling Simulator": {
+      "commandName": "Project",
+      "commandLineArgs": "--test-mode-enable"
+    }
+  }
+}

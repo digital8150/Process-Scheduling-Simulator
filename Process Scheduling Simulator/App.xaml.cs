@@ -9,6 +9,14 @@ namespace Process_Scheduling_Simulator
     /// </summary>
     public partial class App : Application
     {
+        public static Boolean isDebugMode = false;
+        private void Applicaiton_Startup(object sender, StartupEventArgs e)
+        {
+            if (e.Args.Contains("--test-mode-enable"))
+            {
+                isDebugMode = true;
+            }
+        }
     }
 
 }

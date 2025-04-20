@@ -29,6 +29,10 @@ namespace Process_Scheduling_Simulator.View
         public Init()
         {
             InitializeComponent();
+            if(App.isDebugMode)
+            {
+                consoleDebugger = new ConsoleDebugger();
+            }
             this.Opacity = 0;
             BorderMain.Width = 0;
             BorderMain.Height = 0;
