@@ -29,6 +29,10 @@ namespace Process_Scheduling_Simulator.View
         public Init()
         {
             InitializeComponent();
+            if(App.isDebugMode)
+            {
+                consoleDebugger = new ConsoleDebugger();
+            }
             this.Opacity = 0;
             BorderMain.Width = 0;
             BorderMain.Height = 0;
@@ -41,6 +45,13 @@ namespace Process_Scheduling_Simulator.View
             AnimationController.BeginAnimation(this, OpacityProperty, duration: 0.5, easingFunction: new CubicEase());
             AnimationController.BeginAnimation(BorderMain, WidthProperty, 0, 1280, 0.7, easingFunction: new CubicEase());
             AnimationController.BeginAnimation(BorderMain, HeightProperty, 0, 720, 0.7, easingFunction: new CubicEase());
+            await Task.Delay(500);
+            AnimationController.BeginAnimation(ProgressBar, ProgressBar.ValueProperty, 0, 100, 2.5, easingFunction: new QuarticEase());
+            await Task.Delay(3000);
+            mainApplication = new MainWindow();
+            this.AppCloseClickedEventHandler(sender, e);
+            await Task.Delay(300);
+            mainApplication.Show();
         }
 
         private async void AppCloseClickedEventHandler(object sender, RoutedEventArgs e)
