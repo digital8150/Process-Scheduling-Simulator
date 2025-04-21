@@ -127,7 +127,7 @@
                         </Grid>
                         
                         <!-- Settings -->
-                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings" d:Visibility="Hidden">
+                        <Grid Grid.Row="1" Name="Grid_SchedulingSettings">
                             <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
                                 <StackPanel>
                                     <Grid Height="75" Margin="0,0,0,5">
@@ -173,11 +173,24 @@
                                         <hc:TextBox Grid.Column="1" Name="VisDelayTextBox" Text="100" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
                                     </Grid>
 
+                                    <Grid Height="75" Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0" TextWrapping="WrapWithOverflow">
+                                        <fa:FontAwesome Icon="Solid_Wrench"/> 저사양 모드<LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">리소스 소모가 심한 고급 시각화 기능을 비활성화 하여 성능을 향상합니다.</Run>
+                                        </TextBlock>
+                                        <ToggleButton Margin="5,0" Click="TogglePerformanceBoostClicked" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{StaticResource ToggleButtonSwitch}"/>
+
+                                    </Grid>
+
                                 </StackPanel>
                             </hc:ScrollViewer>
 
                         </Grid>
-                        <Grid Grid.Row="1" Name="Grid_ProcessorSettings" Visibility="Hidden" >
+                        <Grid Grid.Row="1" Name="Grid_ProcessorSettings" Visibility="Hidden" d:IsHidden="True" >
                             <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
                                 <StackPanel>
                                     <Grid Height="75" Margin="0,0,0,5">
@@ -218,7 +231,7 @@
 
                         </Grid>
 
-                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Visible">
+                        <Grid Grid.Row="1" Name="Grid_ProcessSettings" Visibility="Hidden" d:Visibility="Visible" d:IsHidden="True">
                             <hc:ScrollViewer IsInertiaEnabled="True" Margin="15">
                                 <StackPanel>
                                     <Grid Height="75" Margin="0,0,0,5">

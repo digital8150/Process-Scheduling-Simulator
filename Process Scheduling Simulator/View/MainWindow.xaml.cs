@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -138,6 +139,7 @@ namespace Process_Scheduling_Simulator
     {
 
         public ObservableCollection<Process> ProcessList { get; set; }
+        public static bool usePerformanceBoost = false; // 성능 향상 사용 여부
         public MainWindow()
         {
             InitializeComponent();
@@ -683,7 +685,7 @@ namespace Process_Scheduling_Simulator
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
                 ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}",
-                Opacity = 0
+                Opacity = usePerformanceBoost?1:0
 
             }; 
 
@@ -707,7 +709,7 @@ namespace Process_Scheduling_Simulator
 
             MainCanvas.Children.Add(border);
             _ganttBars.Add(border);
-            AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
+            if(!usePerformanceBoost) AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
 
             // 최대 시간 업데이트 및 타임바 갱신
             if (endTime > _maxTime)
@@ -926,6 +928,15 @@ namespace Process_Scheduling_Simulator
         {
             View.License license = new View.License();
             license.Show();
+        }
+
+        private void TogglePerformanceBoostClicked(object sender, RoutedEventArgs e)
+        {
+            if(sender as ToggleButton != null)
+            {
+                usePerformanceBoost = (bool)(sender as ToggleButton).IsChecked;
+            }
+
         }
     }
 }
