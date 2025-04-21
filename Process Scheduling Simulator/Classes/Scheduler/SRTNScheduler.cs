@@ -30,33 +30,6 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     readyQueue.Add(arrived);
                 }
 
-                // 현재 실행 중인 프로세스를 레디 큐로 되돌리고 선점
-                /*
-                foreach (var processor in Processors)
-                {
-                    if (processor.RunningProcess != null)
-                    {
-                        readyQueue.Add((Process)processor.RunningProcess);
-                        processor.RunningProcess = null;
-                    }
-                }
-                */
-
-                // 남은 시간이 가장 짧은 프로세스를 정렬하고 할당
-                /*
-                var sortedQueue = readyQueue.OrderBy(p => p.RemainingTime).ToList();
-
-                foreach (var processor in Processors)
-                {
-                    if (sortedQueue.Count > 0)
-                    {
-                        var nextProcess = sortedQueue[0];
-                        readyQueue.Remove(nextProcess);
-                        processor.AssignProcess(nextProcess, CurrentTime);
-                    }
-                }
-                */
-
                 //유휴 프로세서에 가장 짧은 남은 시간 프로세스 할당
                 foreach(var processor in Processors.OrderBy(p => p.Type))
                 {
@@ -124,4 +97,3 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
         }
     }
 }
-//실행은 되지만 실행되는 결과가 이상한 것 같음. 실행시간도 다른 알고리즘들에 비해 적음..
