@@ -145,7 +145,7 @@
                                             <ComboBoxItem Content="SPN"/>
                                             <ComboBoxItem Content="SRTN"/>
                                             <ComboBoxItem Content="HRRN"/>
-                                            <ComboBoxItem Content="오!운영식 방법"/>
+                                            <ComboBoxItem Content="금쪽이 프로세스 관리 스케줄링"/>
                                         </hc:ComboBox>
                                     </Grid>
 

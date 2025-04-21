@@ -355,7 +355,7 @@ namespace Process_Scheduling_Simulator
                         }
                         scheduler = new RRScheduler(processesToSchedule, processors, quantum);
                         break;
-                    case "오!운영식 방법":
+                    case "금쪽이 프로세스 관리 스케줄링":
                         scheduler = new OriginalScheduler(processesToSchedule, processors);
                         break;
                     default:
