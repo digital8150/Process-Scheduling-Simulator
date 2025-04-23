@@ -1,10 +1,10 @@
 <div align="center">
 
-   [![C#](https://img.shields.io/badge/Language-C%23-%23f34b7d.svg?style=plastic)](https://en.wikipedia.org/wiki/C_Sharp_(programming_language))
-   [![Windows](https://img.shields.io/badge/Platform-Windows-0078d7.svg?style=plastic)](https://en.wikipedia.org/wiki/Microsoft_Windows)
-   [![x64](https://img.shields.io/badge/Arch-x64-red.svg?style=plastic)](https://en.wikipedia.org/wiki/X86-64)
-   [![x86](https://img.shields.io/badge/Arch-x86-red.svg?style=plastic)](https://en.wikipedia.org/wiki/X86-64)
-   [![arm64](https://img.shields.io/badge/Arch-arm64-red.svg?style=plastic)](https://en.wikipedia.org/wiki/Arm64)
+   [![C#](https://img.shields.io/badge/Language-C%23-%23f34b7d.svg?style=flat-square)](https://en.wikipedia.org/wiki/C_Sharp_(programming_language))
+   [![Windows](https://img.shields.io/badge/Platform-Windows-0078d7.svg?style=flat-square)](https://en.wikipedia.org/wiki/Microsoft_Windows)
+   [![x64](https://img.shields.io/badge/Arch-x64-red.svg?style=flat-square)](https://en.wikipedia.org/wiki/X86-64)
+   [![x86](https://img.shields.io/badge/Arch-x86-red.svg?style=flat-square)](https://en.wikipedia.org/wiki/X86-64)
+   [![arm64](https://img.shields.io/badge/Arch-arm64-red.svg?style=flat-square)](https://en.wikipedia.org/wiki/Arm64)
 
    # **Process Scheduling Simulator**
 </div>
@@ -22,11 +22,12 @@
   -   금쪽이 프로세스 관리 스케줄링
 - 시뮬레이션 결과 Gantt Chart 시각화
 - 멀티 코어 프로세서 시뮬레이션 지원
-  - 개수 설정 가능한 P Core 및 E Core
-  - 개별 프로세서마다 전력 소비및 성능 시뮬레이션
+  - 두 가지 타입의 프로세서 코어(P & E Core)
+  - 각 타입 별 코 개수 설정 가능
+  - 개별 프로세서 코어마다 전력 소비및 성능 시뮬레이션
 - 심미적인 UI와 매끄러운 사용자 경험
   - Windows Presentaion Foundation(WPF)를 통한 해상도및 디바이스 독립적인 Graphic User Interface 제공
-  - 프로세스 목록 내보내기 및 가져오기 (JSON 직렬화 및 역직렬화)
+  - 스케줄링 시뮬레이션 시나리오 내보내기 및 가져오기 가능 (JSON 형식)
 
 ## 프로젝트
 * 프로젝트 : 프로세스 스케줄링 시뮬레이터 제작
