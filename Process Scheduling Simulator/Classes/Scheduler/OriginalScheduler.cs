@@ -11,15 +11,20 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
 {
     public class OriginalScheduler : Scheduler
     {
-        public OriginalScheduler(List<Process> processes, List<Processor> processors)
-            : base(processes, processors) { }
+        private int customThreshold = 0; // 커스텀 임계값
+        private int schedulerIndex = 0;
+        public OriginalScheduler(List<Process> processes, List<Processor> processors, int customThreshold, int schedulerIndex)
+            : base(processes, processors) { 
+            this.customThreshold = customThreshold;
+            this.schedulerIndex = schedulerIndex;
+        }
 
 
         public async override Task Schedule()
         {
             Reset();
             var incomingProcesses = new Queue<Process>(Processes.OrderBy(p => p.ArrivalTime));
-            var readyQueue = new Queue<Process>();
+            var readyQueue = new List<Process>();
             var isolationQueue = new Queue<Process>();
             var colorMap = new Dictionary<Process, Brush>();
             int isolationQueueCredit = 0;
@@ -38,7 +43,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
                 {
                     var arrivedProcess = incomingProcesses.Dequeue();
-                    readyQueue.Enqueue(arrivedProcess);
+                    readyQueue.Add(arrivedProcess);
                     Console.WriteLine($"Process Arrived : {arrivedProcess.Name}\t Time : {CurrentTime}");
                 }
 
@@ -54,34 +59,6 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         }
                         isolationProcessor = null;
                     }
-                }
-
-                //금쪽이 선별
-                //모든 프로세서가 바쁨
-                if (isAllProcessorBusy() && avgBurstTime > 0)
-                {
-                    foreach(var processor in Processors)
-                    {
-                        if (processor.CurrentProcess.CPUTicks > avgBurstTime && processor != isolationProcessor)
-                        {
-                            Process goldenkid = processor.PreemptProcess(CurrentTime);
-                            colorMap.Add(goldenkid, goldenkid.ProcessColor);
-                            goldenkid.ProcessColor = Brushes.LightGoldenrodYellow; //금쪽이 색상 변경
-                            isolationQueue.Enqueue(goldenkid);
-                            Console.WriteLine($"금쪽이 선별 및 선점 : {goldenkid.Name}\t금쪽이 큐 Count : {isolationQueue.Count}\t평균BT : {avgBurstTime}\t금쪽이 현재 CPUTick:{goldenkid.CPUTicks}");
-                        }
-                    }
-                }else if(!isAllProcessorBusy()) //시스템이 바쁘지 않을 때, 금쪽이큐 운영은 하지 않음
-                {
-                    while(isolationQueue.Count > 0)
-                    {
-                        Process promotionedProcess = isolationQueue.Dequeue();
-                        readyQueue.Enqueue(promotionedProcess);
-                        promotionedProcess.ProcessColor = colorMap[promotionedProcess];
-                        colorMap.Remove(promotionedProcess);
-                        Console.WriteLine($"일반큐 승급: {promotionedProcess.Name}\t금쪽이 큐 Count : {isolationQueue.Count}");
-                    }
-
                 }
 
                 //유휴 프로세서에 프로세스 할당
@@ -106,9 +83,45 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 {
                     if (processor.IsIdle && readyQueue.Count > 0)
                     {
-                        processor.AssignProcess(readyQueue.Dequeue(), CurrentTime);
+                        processor.AssignProcess(FindNextPrcoess(readyQueue), CurrentTime);
                     }
                 }
+
+
+
+                //금쪽이 선별
+                //모든 프로세서가 바쁨
+                if (isAllProcessorBusy() && avgBurstTime > 0 && readyQueue.Count != 0)
+                {
+                    foreach (var processor in Processors)
+                    {
+                        if (processor.CurrentProcess.CPUTicks > Math.Max(avgBurstTime,customThreshold) && processor != isolationProcessor)
+                        {
+                            Process goldenkid = processor.PreemptProcess(CurrentTime);
+                            colorMap.Add(goldenkid, goldenkid.ProcessColor);
+                            goldenkid.ProcessColor = Brushes.LightGoldenrodYellow; //금쪽이 색상 변경
+                            isolationQueue.Enqueue(goldenkid);
+                            Console.WriteLine($"금쪽이 선별 및 선점 : {goldenkid.Name}\t금쪽이 큐 Count : {isolationQueue.Count}\t평균BT : {avgBurstTime}\t금쪽이 현재 CPUTick:{goldenkid.CPUTicks}");
+                            //금쪽이 선점하였으므로 readyQueue의 일반 프로세스 할당
+                            
+                            if(readyQueue.Count>0) processor.AssignProcess(FindNextPrcoess(readyQueue), CurrentTime); //일반 프로세스 할당
+                        }
+                    }
+                }
+                else if (!isAllProcessorBusy()) //시스템이 바쁘지 않을 때, 금쪽이큐 운영은 하지 않음
+                {
+                    while (isolationQueue.Count > 0)
+                    {
+                        Process promotionedProcess = isolationQueue.Dequeue();
+                        readyQueue.Add(promotionedProcess);
+                        promotionedProcess.ProcessColor = colorMap[promotionedProcess];
+                        colorMap.Remove(promotionedProcess);
+                        Console.WriteLine($"일반큐 승급: {promotionedProcess.Name}\t금쪽이 큐 Count : {isolationQueue.Count}");
+                    }
+
+                }
+
+
 
                 //프로세서 틱 처리
                 foreach (var processor in Processors)
@@ -188,6 +201,35 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
             return true;
         }
 
+        private Process FindNextPrcoess(List<Process> readyQueue)
+        {
+            Process nextProcess = null;
+            switch (schedulerIndex)
+            {
+                case 0: // FCFS
+                    nextProcess = readyQueue.OrderBy(p => p.ArrivalTime).First();
+                    break;
+                case 1: // SPN
+                    nextProcess = readyQueue.OrderBy(p => p.BurstTime).First();
+                    break;
+                case 2: // HRRN
+                    double highestRatio = -1.0;
+                    foreach (var process in readyQueue)
+                    {
+                        double ratio = ((CurrentTime - process.ArrivalTime - process.CPUTicks) + process.BurstTime) / process.BurstTime;
+                        if(ratio > highestRatio)
+                        {
+                            highestRatio = ratio;
+                            nextProcess = process;
+                        }
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid scheduler index.");
+            }
+            readyQueue.Remove(nextProcess);
+            return nextProcess;
+        }
 
         private void CalculateCompletionMetrics(Process completedProcess, Processor processor, int currentTime)
         {

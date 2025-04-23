@@ -161,6 +161,34 @@
                                         <hc:TextBox Grid.Column="1" Name="TimeQuantumTextBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
                                     </Grid>
 
+                                    <Grid Name="Grid_Original_NormalQueueScheduler" Height="75" Margin="0,0,0,5" Visibility="Collapsed" d:Visibility="Visible">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_ClockRotateLeft"/> 일반큐 스케줄러<LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">일반큐에 사용할 스케줄링 기법을 선택하세요</Run>
+                                        </TextBlock>
+                                        <hc:ComboBox Grid.Column="1" SelectedIndex="0" Name="NormalQueueSchedulerComboBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0">
+                                            <ComboBoxItem Content="FCFS"/>
+                                            <ComboBoxItem Content="SPN"/>
+                                            <ComboBoxItem Content="HRRN"/>
+                                        </hc:ComboBox>
+                                    </Grid>
+
+                                    <Grid Name="Grid_Original_CustomThreshold" Height="75" Margin="0,0,0,5" Visibility="Collapsed">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0">
+                                        <fa:FontAwesome Icon="Solid_BarsStaggered"/> 금쪽이 임계치 최소값 <LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">금쪽이 판정 임계치의 최소값을 설정할 수 있습니다.</Run>
+                                        </TextBlock>
+                                        <hc:TextBox Grid.Column="1" Name="CustomThresholdTextBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+                                    </Grid>
+
                                     <Grid Height="75" Margin="0,0,0,5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>

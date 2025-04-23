@@ -356,7 +356,14 @@ namespace Process_Scheduling_Simulator
                         scheduler = new RRScheduler(processesToSchedule, processors, quantum);
                         break;
                     case "금쪽이 프로세스 관리 스케줄링":
-                        scheduler = new OriginalScheduler(processesToSchedule, processors);
+                        int customThreshold = 0;
+                        if (!int.TryParse(CustomThresholdTextBox.Text, out customThreshold) || customThreshold < 0)
+                        {
+                            HandyControl.Controls.Growl.Error("잘못된 최소 임계값 설정입니다.");
+                            (sender as Button).IsEnabled = true;
+                            return;
+                        }
+                        scheduler = new OriginalScheduler(processesToSchedule, processors, customThreshold, NormalQueueSchedulerComboBox.SelectedIndex);
                         break;
                     default:
                         HandyControl.Controls.Growl.Error($" '{selectedAlgorithm}' 알고리즘은 인식되지 않습니다.");
@@ -920,6 +927,16 @@ namespace Process_Scheduling_Simulator
                 else
                 {
                     Grid_RR_TimeQuantum.Visibility = Visibility.Collapsed;
+                }
+                if (selectedAlgorithm == "금쪽이 프로세스 관리 스케줄링")
+                {
+                    Grid_Original_CustomThreshold.Visibility = Visibility.Visible;
+                    Grid_Original_NormalQueueScheduler.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Grid_Original_CustomThreshold.Visibility = Visibility.Collapsed;
+                    Grid_Original_NormalQueueScheduler.Visibility = Visibility.Collapsed;
                 }
             }
         }
