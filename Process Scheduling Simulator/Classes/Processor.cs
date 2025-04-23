@@ -103,7 +103,7 @@ namespace Process_Scheduling_Simulator.Classes
             // Console.WriteLine($"  Debug Power: {Name} at Time {currentTime}. Active Power ({ActivePower}W) added during Tick. Total Now: {TotalConsumedPower:F1}");
 
             // 간트 차트 그리기 (필요시 유지)
-            DrawGanttForCurrentTick(currentTime);
+            if(!MainWindow.usePerformanceBoost) DrawGanttForCurrentTick(currentTime);
 
             // 작업량 처리
             _workRemaining -= PerformanceFactor;

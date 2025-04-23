@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -138,6 +139,7 @@ namespace Process_Scheduling_Simulator
     {
 
         public ObservableCollection<Process> ProcessList { get; set; }
+        public static bool usePerformanceBoost = false; // 성능 향상 사용 여부
         public MainWindow()
         {
             InitializeComponent();
@@ -353,8 +355,15 @@ namespace Process_Scheduling_Simulator
                         }
                         scheduler = new RRScheduler(processesToSchedule, processors, quantum);
                         break;
-                    case "오!운영식 방법":
-                        scheduler = new OriginalScheduler(processesToSchedule, processors);
+                    case "금쪽이 프로세스 관리 스케줄링":
+                        int customThreshold = 0;
+                        if (!int.TryParse(CustomThresholdTextBox.Text, out customThreshold) || customThreshold < 0)
+                        {
+                            HandyControl.Controls.Growl.Error("잘못된 최소 임계값 설정입니다.");
+                            (sender as Button).IsEnabled = true;
+                            return;
+                        }
+                        scheduler = new OriginalScheduler(processesToSchedule, processors, customThreshold, NormalQueueSchedulerComboBox.SelectedIndex);
                         break;
                     default:
                         HandyControl.Controls.Growl.Error($" '{selectedAlgorithm}' 알고리즘은 인식되지 않습니다.");
@@ -683,7 +692,7 @@ namespace Process_Scheduling_Simulator
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
                 ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}",
-                Opacity = 0
+                Opacity = usePerformanceBoost?1:0
 
             }; 
 
@@ -707,7 +716,7 @@ namespace Process_Scheduling_Simulator
 
             MainCanvas.Children.Add(border);
             _ganttBars.Add(border);
-            AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
+            if(!usePerformanceBoost) AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
 
             // 최대 시간 업데이트 및 타임바 갱신
             if (endTime > _maxTime)
@@ -919,6 +928,16 @@ namespace Process_Scheduling_Simulator
                 {
                     Grid_RR_TimeQuantum.Visibility = Visibility.Collapsed;
                 }
+                if (selectedAlgorithm == "금쪽이 프로세스 관리 스케줄링")
+                {
+                    Grid_Original_CustomThreshold.Visibility = Visibility.Visible;
+                    Grid_Original_NormalQueueScheduler.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    Grid_Original_CustomThreshold.Visibility = Visibility.Collapsed;
+                    Grid_Original_NormalQueueScheduler.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -926,6 +945,15 @@ namespace Process_Scheduling_Simulator
         {
             View.License license = new View.License();
             license.Show();
+        }
+
+        private void TogglePerformanceBoostClicked(object sender, RoutedEventArgs e)
+        {
+            if(sender as ToggleButton != null)
+            {
+                usePerformanceBoost = (bool)(sender as ToggleButton).IsChecked;
+            }
+
         }
     }
 }
