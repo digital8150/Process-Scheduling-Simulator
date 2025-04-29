@@ -402,7 +402,7 @@
                         </TextBlock>
 
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15" FontFamily="/Resources/#Pretendard Variable" FontSize="16" FontWeight="Medium" TextAlignment="Right">
-                            <fa:FontAwesome Icon="Solid_BoltLightning" Margin="15,0,0,0"/> P코어 소비 전력 : <Run Name="LabelPcorePower" Text="0.0"/>W <fa:FontAwesome Icon="Solid_Leaf" Margin="15,0,0,0"/> E코어 소비 전력 : <Run Name="LabelEcorePower" Text="0.0"/>W<LineBreak/>
+                            <fa:FontAwesome Icon="Solid_BoltLightning" Margin="15,0,0,0"/> P코어 소비 전력 : <Run Name="LabelPcorePower" Text="0.0"/>W <fa:FontAwesome Icon="Solid_Leaf" Margin="15,0,0,0"/> E코어 소비 전력 : <Run Name="LabelEcorePower" Text="0.0"/>W <fa:FontAwesome Icon="Solid_Microchip" Margin="15,0,0,0"/> 전체 : <Run Name="LabelTotalPower" Text="0.0"/>W<LineBreak/>
                             <fa:FontAwesome Icon="Solid_HourglassHalf" Margin="15,0,0,0"/> 평균 응답시간 : <Run Name="LabelAvgResponseTime" Text="0.0"/> <fa:FontAwesome Icon="Solid_Clock" Margin="15,0,0,0"/> 평균 NTT : <Run Name="LabelAvgNTTime" Text="0.0"/>  <fa:FontAwesome Icon="Regular_Clock" Margin="15,0,0,0"/> 전체 수행시간 : <Run Name="LabelTotalElapsedTime" Text="0.0"/>
                         </TextBlock>
                     </Grid>
