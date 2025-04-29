@@ -363,7 +363,7 @@ namespace Process_Scheduling_Simulator
                             (sender as Button).IsEnabled = true;
                             return;
                         }
-                        scheduler = new OriginalScheduler(processesToSchedule, processors, customThreshold, NormalQueueSchedulerComboBox.SelectedIndex);
+                        scheduler = new OriginalScheduler(processesToSchedule, processors, customThreshold, NormalQueueSchedulerComboBox.SelectedIndex, (bool)ToggleOriginalPCorePrefer.IsChecked);
                         break;
                     default:
                         HandyControl.Controls.Growl.Error($" '{selectedAlgorithm}' 알고리즘은 인식되지 않습니다.");
@@ -374,19 +374,20 @@ namespace Process_Scheduling_Simulator
 
 
                 // --- 6. 시뮬레이션 실행 ---
-                schedulerStarted = true; // 스케줄러 시작 플래그 설정
+                schedulerStarted = true;
                 Console.WriteLine("Starting simulation...");
-                await scheduler.Schedule(); // 여기가 핵심! 시뮬레이션 루프 실행
+                await scheduler.Schedule();
                 Console.WriteLine("Simulation finished.");
 
                 // --- 7. 결과 표시 ---
                 Console.WriteLine("Displaying results...");
                 // 완료된 프로세스 목록을 결과 그리드에 바인딩
                 ResultsDataGrid.ItemsSource = scheduler.CompletedProcesses;
-
+                
                 // 요약 정보 업데이트
                 LabelPcorePower.Text = $"{scheduler.TotalPCorePower:F1}";
                 LabelEcorePower.Text = $"{scheduler.TotalECorePower:F1}";
+                LabelTotalPower.Text = $"{scheduler.OverallTotalPower:F1}";
                 LabelTotalElapsedTime.Text = $"{scheduler.CurrentTime}";
 
                 // 평균값 계산 및 표시
@@ -932,11 +933,15 @@ namespace Process_Scheduling_Simulator
                 {
                     Grid_Original_CustomThreshold.Visibility = Visibility.Visible;
                     Grid_Original_NormalQueueScheduler.Visibility = Visibility.Visible;
+                    Grid_Original_PCorePrefer.Visibility = Visibility.Visible;
+                    Grid_Original_Description.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     Grid_Original_CustomThreshold.Visibility = Visibility.Collapsed;
                     Grid_Original_NormalQueueScheduler.Visibility = Visibility.Collapsed;
+                    Grid_Original_PCorePrefer.Visibility = Visibility.Collapsed;
+                    Grid_Original_Description.Visibility = Visibility.Collapsed;
                 }
             }
         }
