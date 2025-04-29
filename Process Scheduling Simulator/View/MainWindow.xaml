@@ -161,6 +161,14 @@
                                         <hc:TextBox Grid.Column="1" Name="TimeQuantumTextBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
                                     </Grid>
 
+                                    <Grid Name="Grid_Original_Description" Height="Auto" Margin="0,0,0,5" Visibility="Collapsed" d:Visibility="Visible">
+                                        <TextBlock FontSize="14" Margin="5,0" TextWrapping="Wrap">
+                                            <fa:FontAwesome Icon="Regular_CircleQuestion" FontSize="16" Margin="0,0,5,0"/>
+                                            <Run FontSize="16" FontWeight="SemiBold">금쪽이 프로세스 관리 스케줄링에 대해서</Run> <LineBreak/>
+                                            호위 효과 및 기아 완화를 위해, 최근 종료 프로세스의 실행 시간 EMA로 정해진 임계치를 넘는 프로세스를 선점하여 별도 격리 큐(RR 방식, 단위시간 4/퀀텀 2)로 보내는 스케줄링 기법.
+                                        </TextBlock>
+                                    </Grid>
+
                                     <Grid Name="Grid_Original_NormalQueueScheduler" Height="75" Margin="0,0,0,5" Visibility="Collapsed" d:Visibility="Visible">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
@@ -187,6 +195,19 @@
                                         <Run FontSize="14" FontWeight="Medium">금쪽이 판정 임계치의 최소값을 설정할 수 있습니다.</Run>
                                         </TextBlock>
                                         <hc:TextBox Grid.Column="1" Name="CustomThresholdTextBox" Text="2" FontFamily="/Resources/#Pretendard Variable" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="15,0"/>
+                                    </Grid>
+
+                                    <Grid Name="Grid_Original_PCorePrefer" Height="75" Margin="0,0,0,5" Visibility="Collapsed">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0" TextWrapping="WrapWithOverflow">
+                                        <fa:FontAwesome Icon="Solid_Microchip"/> 금쪽이 PCore 우선 모드<LineBreak/>
+                                        <Run FontSize="14" FontWeight="Medium">금쪽이 큐가 PCore를 사용할 수 있는 경우 우선적으로 사용합니다.</Run>
+                                        </TextBlock>
+                                        <ToggleButton Margin="5,0" Name="ToggleOriginalPCorePrefer"  Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{StaticResource ToggleButtonSwitch}"/>
+
                                     </Grid>
 
                                     <Grid Height="75" Margin="0,0,0,5">

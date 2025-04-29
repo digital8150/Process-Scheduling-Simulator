@@ -363,7 +363,7 @@ namespace Process_Scheduling_Simulator
                             (sender as Button).IsEnabled = true;
                             return;
                         }
-                        scheduler = new OriginalScheduler(processesToSchedule, processors, customThreshold, NormalQueueSchedulerComboBox.SelectedIndex);
+                        scheduler = new OriginalScheduler(processesToSchedule, processors, customThreshold, NormalQueueSchedulerComboBox.SelectedIndex, (bool)ToggleOriginalPCorePrefer.IsChecked);
                         break;
                     default:
                         HandyControl.Controls.Growl.Error($" '{selectedAlgorithm}' 알고리즘은 인식되지 않습니다.");
@@ -932,11 +932,15 @@ namespace Process_Scheduling_Simulator
                 {
                     Grid_Original_CustomThreshold.Visibility = Visibility.Visible;
                     Grid_Original_NormalQueueScheduler.Visibility = Visibility.Visible;
+                    Grid_Original_PCorePrefer.Visibility = Visibility.Visible;
+                    Grid_Original_Description.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     Grid_Original_CustomThreshold.Visibility = Visibility.Collapsed;
                     Grid_Original_NormalQueueScheduler.Visibility = Visibility.Collapsed;
+                    Grid_Original_PCorePrefer.Visibility = Visibility.Collapsed;
+                    Grid_Original_Description.Visibility = Visibility.Collapsed;
                 }
             }
         }

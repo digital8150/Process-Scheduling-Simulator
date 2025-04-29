@@ -13,10 +13,12 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
     {
         private int customThreshold = 0; // 커스텀 임계값
         private int schedulerIndex = 0;
-        public OriginalScheduler(List<Process> processes, List<Processor> processors, int customThreshold, int schedulerIndex)
+        private bool preferPCore = false;
+        public OriginalScheduler(List<Process> processes, List<Processor> processors, int customThreshold, int schedulerIndex, bool preferPCore)
             : base(processes, processors) { 
             this.customThreshold = customThreshold;
             this.schedulerIndex = schedulerIndex;
+            this.preferPCore = preferPCore;
         }
 
 
@@ -66,7 +68,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 if (isolationQueueCredit > 0 && isolationQueue.Count > 0 && isolationProcessor == null)
                 {
 
-                    foreach (var processor in Processors)
+                    foreach (var processor in preferPCore ? Processors.OrderBy(p=>p.Type) : Processors.OrderByDescending(p=>p.Type))
                     {
                         if (processor.IsIdle)
                         {
