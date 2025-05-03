@@ -355,7 +355,7 @@ namespace Process_Scheduling_Simulator
                         }
                         scheduler = new RRScheduler(processesToSchedule, processors, quantum);
                         break;
-                    case "금쪽이 프로세스 관리 스케줄링":
+                    case "GTMI":
                         int customThreshold = 0;
                         if (!int.TryParse(CustomThresholdTextBox.Text, out customThreshold) || customThreshold < 0)
                         {
@@ -931,7 +931,7 @@ namespace Process_Scheduling_Simulator
                 {
                     Grid_RR_TimeQuantum.Visibility = Visibility.Collapsed;
                 }
-                if (selectedAlgorithm == "금쪽이 프로세스 관리 스케줄링")
+                if (selectedAlgorithm == "GTMI")
                 {
                     Grid_Original_CustomThreshold.Visibility = Visibility.Visible;
                     Grid_Original_NormalQueueScheduler.Visibility = Visibility.Visible;
