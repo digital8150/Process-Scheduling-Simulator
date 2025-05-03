@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -119,6 +120,17 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         promotionedProcess.ProcessColor = colorMap[promotionedProcess];
                         colorMap.Remove(promotionedProcess);
                         Console.WriteLine($"일반큐 승급: {promotionedProcess.Name}\t금쪽이 큐 Count : {isolationQueue.Count}");
+                        if (readyQueue.Count > 0)
+                        {
+                            //프로세서에 프로세스 할당
+                            foreach(var processor in Processors)
+                            {
+                                if (processor.IsIdle && readyQueue.Count > 0)
+                                {
+                                    processor.AssignProcess(FindNextPrcoess(readyQueue), CurrentTime);
+                                }
+                            }
+                        }
                     }
 
                 }
