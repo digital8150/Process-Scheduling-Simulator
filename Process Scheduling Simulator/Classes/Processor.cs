@@ -185,8 +185,5 @@ namespace Process_Scheduling_Simulator.Classes
                 Init.mainApplication.DrawGanttBar(_startTimeCurrentProcess, endTime, _processorIndexInGantt, CurrentProcess.Name, CurrentProcess.ProcessColor);
             }
         }
-
-        // --- RecordPowerForTick 메서드는 이제 사용되지 않으므로 제거 ---
-        // public void RecordPowerForTick(int currentTime) { ... }
     }
 }

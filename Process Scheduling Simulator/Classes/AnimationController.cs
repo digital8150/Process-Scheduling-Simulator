@@ -49,7 +49,7 @@ namespace Process_Scheduling_Simulator.Classes
             if (removeOnComplete)
             {
                 // Completed 이벤트 핸들러 정의 (람다식 사용)
-                EventHandler animationCompletedHandler = null; // 아래 람다에서 자신을 참조하기 위해 미리 선언
+                EventHandler animationCompletedHandler = null;
                 animationCompletedHandler = (sender, e) =>
                 {
                     target.BeginAnimation(property, null); // 애니메이션 제거
