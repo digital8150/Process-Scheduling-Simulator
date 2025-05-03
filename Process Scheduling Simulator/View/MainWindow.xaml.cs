@@ -376,6 +376,7 @@ namespace Process_Scheduling_Simulator
                 // --- 6. 시뮬레이션 실행 ---
                 schedulerStarted = true;
                 Console.WriteLine("Starting simulation...");
+                
                 await scheduler.Schedule();
                 Console.WriteLine("Simulation finished.");
 
@@ -383,7 +384,7 @@ namespace Process_Scheduling_Simulator
                 Console.WriteLine("Displaying results...");
                 // 완료된 프로세스 목록을 결과 그리드에 바인딩
                 ResultsDataGrid.ItemsSource = scheduler.CompletedProcesses;
-                
+
                 // 요약 정보 업데이트
                 LabelPcorePower.Text = $"{scheduler.TotalPCorePower:F1}";
                 LabelEcorePower.Text = $"{scheduler.TotalECorePower:F1}";
@@ -741,6 +742,7 @@ namespace Process_Scheduling_Simulator
             // 간트 바 제거
             foreach (var bar in _ganttBars)
             {
+                bar.BeginAnimation(Border.OpacityProperty, null);
                 MainCanvas.Children.Remove(bar);
             }
             _ganttBars.Clear();
