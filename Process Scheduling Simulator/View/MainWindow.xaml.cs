@@ -694,7 +694,7 @@ namespace Process_Scheduling_Simulator
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
                 ToolTip = $"{processName}\nTime: {startTime} - {endTime}\nProcessor: {_processorLabels[processorIndex].Text}",
-                Opacity = usePerformanceBoost?1:0
+                Opacity = 1//usePerformanceBoost?1:0
 
             }; 
 
@@ -718,7 +718,7 @@ namespace Process_Scheduling_Simulator
 
             MainCanvas.Children.Add(border);
             _ganttBars.Add(border);
-            if(!usePerformanceBoost) AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase());
+            if(!usePerformanceBoost) AnimationController.BeginAnimation(border, Border.OpacityProperty, from: 0, to: 1, duration: 0.5, easingFunction: new CubicEase(), removeOnComplete:true);
 
             // 최대 시간 업데이트 및 타임바 갱신
             if (endTime > _maxTime)
