@@ -107,7 +107,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     bestProcess = readyProcess; // Tie-breaking: FCFS
                 }
             }
-            Console.WriteLine($"Se;ected Process : {bestProcess.Name}");
+            Console.WriteLine($"Selected Process : {bestProcess.Name}");
             return bestProcess;
         }
 

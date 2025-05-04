@@ -28,12 +28,13 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 int delay = 100;
                 int.TryParse(Init.mainApplication?.VisDelayTextBox.Text, out delay);
                 await Task.Delay(Math.Max(1, delay));
-
+                Console.WriteLine($"// --- 시간 : {CurrentTime} ---//");
                 // ---프로세스 도착---
                 while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
                 {
                     var arrivedProcess = incomingProcesses.Dequeue();
                     readyQueue.Enqueue(arrivedProcess);
+                    Console.WriteLine($"프로세스 도착 : {arrivedProcess.Name}");
                 }
 
                 // ---프로세서에 프로세스 할당---
@@ -43,6 +44,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     {
                         var processToRun = readyQueue.Dequeue();
                         processor.AssignProcess(processToRun, CurrentTime);
+                        Console.WriteLine($"프로세스 할당 : {processToRun.Name} -> {processor.Name}");
                     }
                 }
 
@@ -74,6 +76,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
 
                             justCompletedProcesses.Add(completedProcess);
                             // --- 수정 완료 ---
+                            Console.WriteLine($"프로세스 완료 : {completedProcess.Name} @ {processor.Name}, Time : {completionTime}");
                         }
                     }
                 }

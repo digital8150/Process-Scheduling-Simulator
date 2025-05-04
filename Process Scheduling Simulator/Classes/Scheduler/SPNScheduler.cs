@@ -23,12 +23,14 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 int delay = 100;
                 int.TryParse(Init.mainApplication.VisDelayTextBox.Text, out delay);
                 await Task.Delay(delay); // 시각화 지연시간 적용 - 이 코드는 공통으로 수정하지 말아주세요
+                Console.WriteLine($"// --- 시간 : {CurrentTime} ---//");
 
                 // 도착한 프로세스를 readyQueue에 추가
                 while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
                 {
                     var arrivedProcess = incomingProcesses.Dequeue();
                     readyQueue.Add(arrivedProcess);
+                    Console.WriteLine($"프로세스 도착 : {arrivedProcess.Name}");
                 }
 
                 // 프로세서가 비어있는 경우에만 작업 할당
@@ -41,6 +43,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
 
                         readyQueue.Remove(nextProcess);
                         processor.AssignProcess(nextProcess, CurrentTime); // 시작 시간 설정됨
+                        Console.WriteLine($"프로세스 할당 : {nextProcess.Name} -> {processor.Name}");
                     }
                 }
 
@@ -53,7 +56,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     {
                         CalculateCompletionMetrics(completedProcess, processor, CurrentTime); // 완료 통계 계산
                         CompletedProcesses.Add(completedProcess);
-                        // Console.WriteLine($"  Completion: {completedProcess.Name} finished on {processor.Name}.");
+                        Console.WriteLine($"프로세스 완료 : {completedProcess.Name} @ {processor.Name}, Time : {CurrentTime+1}");
                     }
                 }
 

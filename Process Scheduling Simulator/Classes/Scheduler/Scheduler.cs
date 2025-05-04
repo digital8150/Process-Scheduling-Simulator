@@ -1,9 +1,4 @@
-﻿// Process_Scheduling_Simulator.Classes.Scheduler.Scheduler
-// 이 클래스는 이전 답변에서 수정된 내용과 동일하게 유지됩니다.
-// TotalPowerConsumption 속성이 없고, CalculateAverageMetrics에서
-// 각 Processor의 TotalConsumedPower를 합산하여 결과를 출력합니다.
-// Reset 메서드도 각 Processor의 ResetState를 호출합니다.
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

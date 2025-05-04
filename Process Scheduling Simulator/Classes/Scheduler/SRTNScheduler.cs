@@ -22,12 +22,14 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                 int delay = 100;
                 int.TryParse(Init.mainApplication.VisDelayTextBox.Text, out delay);
                 await Task.Delay(delay); // 시각화용 딜레이
+                Console.WriteLine($"// --- 시간 : {CurrentTime} ---//");
 
                 // 도착한 프로세스를 레디 큐에 추가
                 while (incomingProcesses.Count > 0 && incomingProcesses.Peek().ArrivalTime <= CurrentTime)
                 {
                     var arrived = incomingProcesses.Dequeue();
                     readyQueue.Add(arrived);
+                    Console.WriteLine($"프로세스 도착 : {arrived.Name}");
                 }
 
                 //유휴 프로세서에 가장 짧은 남은 시간 프로세스 할당
@@ -38,6 +40,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         var nextProcess = readyQueue.OrderBy(p => p.RemainingTime).First();
                         readyQueue.Remove(nextProcess);
                         processor.AssignProcess(nextProcess, CurrentTime);
+                        Console.WriteLine($"프로세스 할당 : {nextProcess.Name} -> {processor.Name}");
                     }
                 }
 
@@ -49,7 +52,9 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                         var nextProcess = readyQueue.OrderBy(p => p.RemainingBurstTime).First();
                         if (nextProcess.RemainingBurstTime < processor.CurrentProcess.RemainingBurstTime)
                         {
+                            Console.WriteLine($"프로세스 선점 : {processor.Name} -> {processor.CurrentProcess.Name}");
                             readyQueue.Add(processor.PreemptProcess(CurrentTime));
+                            Console.WriteLine($"프로세스 할당 : {nextProcess.Name} -> {processor.Name}");
                             processor.AssignProcess(nextProcess, CurrentTime);
                             readyQueue.Remove(nextProcess);
                         }
@@ -64,6 +69,7 @@ namespace Process_Scheduling_Simulator.Classes.Scheduler
                     {
                         completedProcess.CompletionTime = CurrentTime + 1; // ⬅️ Tick 후 종료 시점 기록
                         CalculateCompletionMetrics(completedProcess, processor, CurrentTime + 1);
+                        Console.WriteLine($"프로세스 완료 : {completedProcess.Name} @ {processor.Name}, Time : {completedProcess.CompletionTime}");
                         CompletedProcesses.Add(completedProcess);
                     }
                 }

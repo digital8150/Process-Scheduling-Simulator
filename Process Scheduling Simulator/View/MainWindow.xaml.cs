@@ -355,7 +355,7 @@ namespace Process_Scheduling_Simulator
                         }
                         scheduler = new RRScheduler(processesToSchedule, processors, quantum);
                         break;
-                    case "금쪽이 프로세스 관리 스케줄링":
+                    case "GTMI":
                         int customThreshold = 0;
                         if (!int.TryParse(CustomThresholdTextBox.Text, out customThreshold) || customThreshold < 0)
                         {
@@ -669,15 +669,11 @@ namespace Process_Scheduling_Simulator
             ScrollViewerMain.ScrollToHorizontalOffset(ScrollViewerMain.ExtentWidth - ScrollViewerMain.ViewportWidth);
             if (processorIndex < 0 || processorIndex >= _processorLabels.Count)
             {
-                // 유효하지 않은 프로세서 인덱스 처리 (예: 오류 로깅 또는 무시)
-                Console.WriteLine($"Warning: Invalid processor index {processorIndex} for process {processName}");
                 return;
             }
 
             if (startTime >= endTime)
             {
-                // 시작 시간이 종료 시간보다 크거나 같은 경우 처리
-                Console.WriteLine($"Warning: Invalid time range ({startTime} >= {endTime}) for process {processName}");
                 return;
             }
 
@@ -931,7 +927,7 @@ namespace Process_Scheduling_Simulator
                 {
                     Grid_RR_TimeQuantum.Visibility = Visibility.Collapsed;
                 }
-                if (selectedAlgorithm == "금쪽이 프로세스 관리 스케줄링")
+                if (selectedAlgorithm == "GTMI")
                 {
                     Grid_Original_CustomThreshold.Visibility = Visibility.Visible;
                     Grid_Original_NormalQueueScheduler.Visibility = Visibility.Visible;
